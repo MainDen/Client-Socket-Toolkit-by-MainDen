@@ -14,6 +14,18 @@ namespace MainDen.ClientSocketToolkit
         public MainForm()
         {
             InitializeComponent();
+            Action<string> LogWrite = new Action<string>(message =>
+            {
+                rtbLog.Text += message;
+            });
+            Logger.CustomLogging += new Action<string>(message => rtbLog.Invoke(LogWrite, message));
+        }
+
+        Logger Logger = new Logger();
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            Logger.Write("Application was loaded.");
         }
     }
 }

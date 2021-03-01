@@ -208,7 +208,7 @@ namespace MainDen.ClientSocketToolkit
             this.bConnect.TabIndex = 9;
             this.bConnect.Text = "Connect";
             this.bConnect.UseVisualStyleBackColor = true;
-            this.bConnect.Click += new System.EventHandler(this.bConnect_Click);
+            this.bConnect.Click += new System.EventHandler(this.BConnect_Click);
             // 
             // bSend
             // 

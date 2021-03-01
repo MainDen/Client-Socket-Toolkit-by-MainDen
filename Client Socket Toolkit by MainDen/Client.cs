@@ -116,33 +116,80 @@ namespace MainDen.ClientSocketToolkit
                     logger = value;
             }
         }
-        public void ConnectAsync(IPEndPoint server)
+        private Thread Connecting
         {
-            Thread connecting = new Thread(obj => {
-                Socket socket = obj as Socket;
+            get => new Thread(arg => {
+                Socket socket = Socket;
+                string[] states = arg as string[];
+                IPAddress[] server;
+                int port;
                 try
                 {
-                    Logger?.Write($"Connecting to server {server}...");
-                    socket.Connect(server);
-                    if (socket.Connected)
-                    {
-                        Logger?.Write($"Connected to server {server}.");
-                        Status = ClientStatus.Connected;
-                    }
-                    else
-                    {
-                        Logger?.Write($"Server {server} didn't respond.");
-                        Status = ClientStatus.Available;
-                    }
+                    server = Dns.GetHostAddresses(states[0]);
+                    port = int.Parse(states[1]);
+                    Logger?.Write("Connecting to server...");
+                    socket.Connect(server, port);
+                    Logger?.Write($"Connected to server ({(socket.RemoteEndPoint as IPEndPoint)?.Address}).");
+                    Status = ClientStatus.Connected;
                 }
                 catch (Exception e)
                 {
-                    Logger?.Write("Connecting error.", Logger.LoggerSender.Error);
+                    Logger?.Write(e.Message, Logger.LoggerSender.Error);
                     socket?.Close();
                     Socket = null;
                     Status = ClientStatus.Available;
                 }
             });
+        }
+        private Thread Disconnecting
+        {
+            get => new Thread(() => {
+                Socket socket = Socket;
+                try
+                {
+                    Logger?.Write($"Disconnecting from server...");
+                    socket?.Shutdown(SocketShutdown.Both);
+                }
+                catch (Exception e)
+                {
+                    Logger?.Write(e.Message, Logger.LoggerSender.Error);
+                }
+                finally
+                {
+                    socket?.Close();
+                    Socket = null;
+                    Logger?.Write($"Disconnected from server.");
+                    Status = ClientStatus.Available;
+                }
+            });
+        }
+        private Thread Sending
+        {
+            get => new Thread(arg => {
+                Socket socket = Socket;
+                byte[] data = arg as byte[];
+                int len = data.Length;
+                try
+                {
+                    Logger?.Write($"Sending {len} bytes to server...");
+                    int sent = socket?.Send(data) ?? 0;
+                    Logger?.Write($"Sent {sent} bytes to server.");
+                    if (!(socket?.Connected ?? false))
+                    {
+                        socket?.Close();
+                        Socket = null;
+                        Logger?.Write($"Server closed the connection.");
+                        Status = ClientStatus.Available;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger?.Write(e.Message, Logger.LoggerSender.Error);
+                }
+            });
+        }
+        public void ConnectAsync(string server, string port)
+        {
             bool isAvailable;
             lock (lStatus)
             {
@@ -152,27 +199,10 @@ namespace MainDen.ClientSocketToolkit
             }
             if (!isAvailable)
                 return;
-            lock (lSettings)
-                connecting.Start(Socket);
+            Connecting.Start(new string[] { server, port });
         }
         public void DisconnectAsync()
         {
-            Thread disconnecting = new Thread(obj => {
-                try
-                {
-                    (obj as Socket)?.Shutdown(SocketShutdown.Both);
-                }
-                catch (Exception e)
-                {
-                    Logger?.Write(e.StackTrace, Logger.LoggerSender.Error);
-                }
-                finally
-                {
-                    (obj as Socket)?.Close();
-                    Status = ClientStatus.Available;
-
-                }
-            });
             bool isConnected;
             lock (lStatus)
             {
@@ -182,11 +212,14 @@ namespace MainDen.ClientSocketToolkit
             }
             if (!isConnected)
                 return;
-            lock (lSettings)
-            {
-                disconnecting.Start(Socket);
-                Socket = null;
-            }
+            Disconnecting.Start();
+        }
+        public void SendAsync(byte[] data)
+        {
+            bool isConnected = Status == ClientStatus.Connected; ;
+            if (!isConnected)
+                return;
+            Sending.Start(data);
         }
     }
 }

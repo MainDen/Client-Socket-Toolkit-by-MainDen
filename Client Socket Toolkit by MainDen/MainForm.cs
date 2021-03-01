@@ -19,13 +19,20 @@ namespace MainDen.ClientSocketToolkit
                 rtbLog.Text += message;
             });
             Logger.CustomLogging += new Action<string>(message => rtbLog.Invoke(LogWrite, message));
+            Client.Logger = Logger;
         }
 
         Logger Logger = new Logger();
 
+        Client Client = new Client();
+
         private void MainForm_Load(object sender, EventArgs e)
         {
             Logger.Write("Application was loaded.");
+        }
+
+        private void bConnect_Click(object sender, EventArgs e)
+        {
         }
     }
 }

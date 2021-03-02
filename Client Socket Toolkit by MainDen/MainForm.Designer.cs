@@ -29,6 +29,7 @@ namespace MainDen.ClientSocketToolkit
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.bOutcomingEncoding = new System.Windows.Forms.Button();
             this.lServer = new System.Windows.Forms.Label();
@@ -238,6 +239,7 @@ namespace MainDen.ClientSocketToolkit
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(644, 261);
             this.Controls.Add(this.tableLayoutPanel1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(480, 240);
             this.Name = "MainForm";
             this.Text = "Client Socket Toolkit by MainDen";

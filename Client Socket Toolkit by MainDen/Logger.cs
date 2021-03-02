@@ -10,8 +10,8 @@ namespace MainDen.ClientSocketToolkit
             fileDateTimeFormat = "yyyy-MM-dd";
             pathFormat = @".\log_{0}.txt";
             logDateTimeFormat = "yyyy-MM-dd HH:mm:ss";
-            messageFormat = "({0} {1}) {2}\n";
-            dataFormat = "DATA:\n{3}\n";
+            messageFormat = "\n({0} {1}) {2}\n";
+            dataFormat = "(DATA)\n{3}\n";
         }
         public Logger(string fileDateTimeFormat, string pathFormat, string logDateTimeFormat, string messageFormat, string dataFormat)
         {

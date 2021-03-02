@@ -95,7 +95,7 @@ namespace MainDen.ClientSocketToolkit
 
         private void OnDataReceived(byte[] data)
         {
-            rtbLog.Text += $"Data:\n{IncomingEncoding.GetString(data)}\n";
+            rtbLog.Text += IncomingEncoding.GetString(data);
         }
 
         private void OnDataReceivedAsync(byte[] data)
@@ -248,12 +248,17 @@ namespace MainDen.ClientSocketToolkit
                     Client.SendAsync(OutcomingEncoding.GetBytes(tbMessage.Text));
                     break;
                 case "Echo":
-                    rtbLog.Text += $"Echo:\n{IncomingEncoding.GetString(OutcomingEncoding.GetBytes(tbMessage.Text))}\n";
+                    Echo(tbMessage.Text);
                     break;
                 case "Execute":
                     ExecuteCommand(tbMessage.Text);
                     break;
             }
+        }
+
+        private void Echo(string text)
+        {
+            rtbLog.Text += $"\n(Echo)\n{IncomingEncoding.GetString(OutcomingEncoding.GetBytes(text))}\n";
         }
 
         private void ExecuteCommand(string command)

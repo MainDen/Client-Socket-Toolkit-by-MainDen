@@ -77,7 +77,7 @@ namespace MainDen.ClientSocketToolkit
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(584, 241);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(644, 261);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // bOutcomingEncoding
@@ -85,7 +85,7 @@ namespace MainDen.ClientSocketToolkit
             this.bOutcomingEncoding.AutoSize = true;
             this.bOutcomingEncoding.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.bOutcomingEncoding.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.bOutcomingEncoding.Location = new System.Drawing.Point(461, 211);
+            this.bOutcomingEncoding.Location = new System.Drawing.Point(521, 231);
             this.bOutcomingEncoding.Name = "bOutcomingEncoding";
             this.bOutcomingEncoding.Padding = new System.Windows.Forms.Padding(0, 2, 0, 2);
             this.bOutcomingEncoding.Size = new System.Drawing.Size(120, 27);
@@ -155,14 +155,14 @@ namespace MainDen.ClientSocketToolkit
             this.tbServer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tbServer.Location = new System.Drawing.Point(129, 6);
             this.tbServer.Name = "tbServer";
-            this.tbServer.Size = new System.Drawing.Size(245, 20);
+            this.tbServer.Size = new System.Drawing.Size(305, 20);
             this.tbServer.TabIndex = 2;
             // 
             // lPort
             // 
             this.lPort.AutoSize = true;
             this.lPort.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lPort.Location = new System.Drawing.Point(380, 3);
+            this.lPort.Location = new System.Drawing.Point(440, 3);
             this.lPort.Margin = new System.Windows.Forms.Padding(3);
             this.lPort.Name = "lPort";
             this.lPort.Padding = new System.Windows.Forms.Padding(0, 2, 0, 2);
@@ -177,8 +177,9 @@ namespace MainDen.ClientSocketToolkit
             this.rtbLog.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rtbLog.Location = new System.Drawing.Point(129, 36);
             this.rtbLog.Name = "rtbLog";
+            this.rtbLog.ReadOnly = true;
             this.tableLayoutPanel1.SetRowSpan(this.rtbLog, 4);
-            this.rtbLog.Size = new System.Drawing.Size(452, 136);
+            this.rtbLog.Size = new System.Drawing.Size(512, 156);
             this.rtbLog.TabIndex = 24;
             this.rtbLog.Text = "";
             this.rtbLog.TextChanged += new System.EventHandler(this.RTBLog_TextChanged);
@@ -186,7 +187,7 @@ namespace MainDen.ClientSocketToolkit
             // tbPort
             // 
             this.tbPort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbPort.Location = new System.Drawing.Point(415, 6);
+            this.tbPort.Location = new System.Drawing.Point(475, 6);
             this.tbPort.Name = "tbPort";
             this.tbPort.Size = new System.Drawing.Size(40, 20);
             this.tbPort.TabIndex = 4;
@@ -195,11 +196,11 @@ namespace MainDen.ClientSocketToolkit
             // 
             this.tableLayoutPanel1.SetColumnSpan(this.tbMessage, 4);
             this.tbMessage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbMessage.Location = new System.Drawing.Point(3, 178);
+            this.tbMessage.Location = new System.Drawing.Point(3, 198);
             this.tbMessage.Multiline = true;
             this.tbMessage.Name = "tbMessage";
             this.tableLayoutPanel1.SetRowSpan(this.tbMessage, 2);
-            this.tbMessage.Size = new System.Drawing.Size(452, 60);
+            this.tbMessage.Size = new System.Drawing.Size(512, 60);
             this.tbMessage.TabIndex = 21;
             // 
             // bConnect
@@ -207,7 +208,7 @@ namespace MainDen.ClientSocketToolkit
             this.bConnect.AutoSize = true;
             this.bConnect.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.bConnect.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.bConnect.Location = new System.Drawing.Point(461, 3);
+            this.bConnect.Location = new System.Drawing.Point(521, 3);
             this.bConnect.MinimumSize = new System.Drawing.Size(120, 0);
             this.bConnect.Name = "bConnect";
             this.bConnect.Padding = new System.Windows.Forms.Padding(0, 2, 0, 2);
@@ -222,7 +223,7 @@ namespace MainDen.ClientSocketToolkit
             this.bSend.AutoSize = true;
             this.bSend.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.bSend.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.bSend.Location = new System.Drawing.Point(461, 178);
+            this.bSend.Location = new System.Drawing.Point(521, 198);
             this.bSend.Name = "bSend";
             this.bSend.Padding = new System.Windows.Forms.Padding(0, 2, 0, 2);
             this.bSend.Size = new System.Drawing.Size(120, 27);
@@ -235,8 +236,9 @@ namespace MainDen.ClientSocketToolkit
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(584, 241);
+            this.ClientSize = new System.Drawing.Size(644, 261);
             this.Controls.Add(this.tableLayoutPanel1);
+            this.MinimumSize = new System.Drawing.Size(480, 240);
             this.Name = "MainForm";
             this.Text = "Client Socket Toolkit by MainDen";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);

@@ -217,7 +217,6 @@ namespace MainDen.ClientSocketToolkit
                     socket = Socket;
                     while (socket.Connected)
                     {
-                        Thread.Sleep(10);
                         byte[] buffer = new byte[BufferSize];
                         int len = socket.Receive(buffer);
                         if (len == 0)
@@ -227,6 +226,7 @@ namespace MainDen.ClientSocketToolkit
                             data[i] = buffer[i];
                         Logger?.Write($"Received {len} bytes from server.");
                         DataReceived?.Invoke(data);
+                        Thread.Sleep(0);
                     }
                     if (!(socket.Connected))
                     {

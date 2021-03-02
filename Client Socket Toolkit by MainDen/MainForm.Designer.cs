@@ -43,7 +43,16 @@ namespace MainDen.ClientSocketToolkit
             this.tbMessage = new System.Windows.Forms.TextBox();
             this.bConnect = new System.Windows.Forms.Button();
             this.bSend = new System.Windows.Forms.Button();
+            this.mMainMenu = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.importSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1.SuspendLayout();
+            this.mMainMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -67,7 +76,7 @@ namespace MainDen.ClientSocketToolkit
             this.tableLayoutPanel1.Controls.Add(this.bConnect, 5, 0);
             this.tableLayoutPanel1.Controls.Add(this.bSend, 4, 5);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 24);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 7;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -78,7 +87,7 @@ namespace MainDen.ClientSocketToolkit
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(644, 261);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(644, 237);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // bOutcomingEncoding
@@ -86,7 +95,7 @@ namespace MainDen.ClientSocketToolkit
             this.bOutcomingEncoding.AutoSize = true;
             this.bOutcomingEncoding.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.bOutcomingEncoding.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.bOutcomingEncoding.Location = new System.Drawing.Point(521, 231);
+            this.bOutcomingEncoding.Location = new System.Drawing.Point(521, 207);
             this.bOutcomingEncoding.Name = "bOutcomingEncoding";
             this.bOutcomingEncoding.Padding = new System.Windows.Forms.Padding(0, 2, 0, 2);
             this.bOutcomingEncoding.Size = new System.Drawing.Size(120, 27);
@@ -180,7 +189,7 @@ namespace MainDen.ClientSocketToolkit
             this.rtbLog.Name = "rtbLog";
             this.rtbLog.ReadOnly = true;
             this.tableLayoutPanel1.SetRowSpan(this.rtbLog, 4);
-            this.rtbLog.Size = new System.Drawing.Size(512, 156);
+            this.rtbLog.Size = new System.Drawing.Size(512, 132);
             this.rtbLog.TabIndex = 24;
             this.rtbLog.Text = "";
             this.rtbLog.TextChanged += new System.EventHandler(this.RTBLog_TextChanged);
@@ -197,7 +206,7 @@ namespace MainDen.ClientSocketToolkit
             // 
             this.tableLayoutPanel1.SetColumnSpan(this.tbMessage, 4);
             this.tbMessage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbMessage.Location = new System.Drawing.Point(3, 198);
+            this.tbMessage.Location = new System.Drawing.Point(3, 174);
             this.tbMessage.Multiline = true;
             this.tbMessage.Name = "tbMessage";
             this.tableLayoutPanel1.SetRowSpan(this.tbMessage, 2);
@@ -224,7 +233,7 @@ namespace MainDen.ClientSocketToolkit
             this.bSend.AutoSize = true;
             this.bSend.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.bSend.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.bSend.Location = new System.Drawing.Point(521, 198);
+            this.bSend.Location = new System.Drawing.Point(521, 174);
             this.bSend.Name = "bSend";
             this.bSend.Padding = new System.Windows.Forms.Padding(0, 2, 0, 2);
             this.bSend.Size = new System.Drawing.Size(120, 27);
@@ -233,13 +242,75 @@ namespace MainDen.ClientSocketToolkit
             this.bSend.UseVisualStyleBackColor = true;
             this.bSend.Click += new System.EventHandler(this.BSend_Click);
             // 
+            // mMainMenu
+            // 
+            this.mMainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem,
+            this.optionsToolStripMenuItem});
+            this.mMainMenu.Location = new System.Drawing.Point(0, 0);
+            this.mMainMenu.Name = "mMainMenu";
+            this.mMainMenu.Size = new System.Drawing.Size(644, 24);
+            this.mMainMenu.TabIndex = 1;
+            this.mMainMenu.Text = "MainMenu";
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.newToolStripMenuItem,
+            this.closeToolStripMenuItem});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Text = "File";
+            // 
+            // newToolStripMenuItem
+            // 
+            this.newToolStripMenuItem.Name = "newToolStripMenuItem";
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.newToolStripMenuItem.Text = "New";
+            // 
+            // closeToolStripMenuItem
+            // 
+            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.closeToolStripMenuItem.Text = "Close";
+            // 
+            // optionsToolStripMenuItem
+            // 
+            this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.importSettingsToolStripMenuItem,
+            this.exportSettingsToolStripMenuItem,
+            this.editSettingsToolStripMenuItem});
+            this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
+            this.optionsToolStripMenuItem.Text = "Options";
+            // 
+            // importSettingsToolStripMenuItem
+            // 
+            this.importSettingsToolStripMenuItem.Name = "importSettingsToolStripMenuItem";
+            this.importSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.importSettingsToolStripMenuItem.Text = "Import Settings";
+            // 
+            // exportSettingsToolStripMenuItem
+            // 
+            this.exportSettingsToolStripMenuItem.Name = "exportSettingsToolStripMenuItem";
+            this.exportSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exportSettingsToolStripMenuItem.Text = "Export Settings";
+            // 
+            // editSettingsToolStripMenuItem
+            // 
+            this.editSettingsToolStripMenuItem.Name = "editSettingsToolStripMenuItem";
+            this.editSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.editSettingsToolStripMenuItem.Text = "Edit Settings";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(644, 261);
             this.Controls.Add(this.tableLayoutPanel1);
+            this.Controls.Add(this.mMainMenu);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MainMenuStrip = this.mMainMenu;
             this.MinimumSize = new System.Drawing.Size(480, 240);
             this.Name = "MainForm";
             this.Text = "Client Socket Toolkit by MainDen";
@@ -247,7 +318,10 @@ namespace MainDen.ClientSocketToolkit
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
+            this.mMainMenu.ResumeLayout(false);
+            this.mMainMenu.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -266,6 +340,14 @@ namespace MainDen.ClientSocketToolkit
         private System.Windows.Forms.Button bConnect;
         private System.Windows.Forms.Button bSend;
         private System.Windows.Forms.Button bOutcomingEncoding;
+        private System.Windows.Forms.MenuStrip mMainMenu;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem importSettingsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exportSettingsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem editSettingsToolStripMenuItem;
     }
 }
 

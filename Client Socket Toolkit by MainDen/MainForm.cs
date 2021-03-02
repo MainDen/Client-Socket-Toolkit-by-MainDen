@@ -71,19 +71,23 @@ namespace MainDen.ClientSocketToolkit
             {
                 case Client.ClientStatus.Available:
                     bConnect.Text = "Connect";
-                    bSend.Text = "Echo";
+                    if (bSend.Text != "Execute")
+                        bSend.Text = "Echo";
                     break;
                 case Client.ClientStatus.Connecting:
                     bConnect.Text = "Connecting..";
-                    bSend.Text = "Echo";
+                    if (bSend.Text != "Execute")
+                        bSend.Text = "Echo";
                     break;
                 case Client.ClientStatus.Connected:
                     bConnect.Text = "Disconnect";
-                    bSend.Text = "Send";
+                    if (bSend.Text != "Execute")
+                        bSend.Text = "Send";
                     break;
                 case Client.ClientStatus.Disconnecting:
                     bConnect.Text = "Disconnecting..";
-                    bSend.Text = "Echo";
+                    if (bSend.Text != "Execute")
+                        bSend.Text = "Echo";
                     break;
             }
         }

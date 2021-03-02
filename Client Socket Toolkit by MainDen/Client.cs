@@ -236,11 +236,7 @@ namespace MainDen.ClientSocketToolkit
                         Status = ClientStatus.Available;
                     }
                 }
-                catch (ObjectDisposedException) { }
-                catch (Exception e)
-                {
-                    //Logger?.Write(e?.Message, Logger.LoggerSender.Error);
-                }
+                catch (Exception) { }
             });
         }
         public void ConnectAsync(string server, string port)
@@ -277,6 +273,11 @@ namespace MainDen.ClientSocketToolkit
             if (!isConnected)
                 return;
             Sending.Start(data);
+        }
+        public void Abort()
+        {
+            Socket?.Close();
+            Socket = null;
         }
     }
 }

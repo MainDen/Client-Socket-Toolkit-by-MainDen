@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Net;
+﻿using Extension.Text;
+using System;
 using System.Net.Sockets;
 using System.Text;
 using System.Windows.Forms;
@@ -22,16 +17,213 @@ namespace MainDen.ClientSocketToolkit
             });
             Logger.CustomLogging += new Action<string>(message => rtbLog.Invoke(LogWrite, message));
             Client.Logger = Logger;
-            Client.StatusChanged += OnClientStausChanged;
+            Client.StatusChanged += OnStatusChangedAsync;
+            Client.DataReceived += OnDataReceivedAsync;
         }
 
         Logger Logger = new Logger();
 
         Client Client = new Client();
 
+        Encoding IncomingEncoding = Encoding.Default;
+
+        Encoding OutcomingEncoding = Encoding.Default;
+
+        private Action<Client.ClientStatus> onStatusChangedAction;
+
+        private Action<Client.ClientStatus> OnStatusChangedAction
+        {
+            get
+            {
+                return onStatusChangedAction ??
+                    (onStatusChangedAction = new Action<Client.ClientStatus>(OnStatusChanged));
+            }
+        }
+
+        private Action<byte[]> onDataReceivedAction;
+        
+        private Action<byte[]> OnDataReceivedAction
+        {
+            get
+            {
+                return onDataReceivedAction ??
+                    (onDataReceivedAction = new Action<byte[]>(OnDataReceived));
+            }
+        }
+
+        private void OnStatusChanged(Client.ClientStatus status)
+        {
+            if (status == Client.ClientStatus.Available)
+            {
+                bProtocolType.Enabled = true;
+                bAddressFamily.Enabled = true;
+                tbServer.Enabled = true;
+                tbPort.Enabled = true;
+            }
+            else
+            {
+                bProtocolType.Enabled = false;
+                bAddressFamily.Enabled = false;
+                tbServer.Enabled = false;
+                tbPort.Enabled = false;
+            }
+            switch (status)
+            {
+                case Client.ClientStatus.Available:
+                    bConnect.Text = "Connect";
+                    bSend.Text = "Echo";
+                    break;
+                case Client.ClientStatus.Connecting:
+                    bConnect.Text = "Connecting..";
+                    bSend.Text = "Echo";
+                    break;
+                case Client.ClientStatus.Connected:
+                    bConnect.Text = "Disconnect";
+                    bSend.Text = "Send";
+                    break;
+                case Client.ClientStatus.Disconnecting:
+                    bConnect.Text = "Disconnecting..";
+                    bSend.Text = "Echo";
+                    break;
+            }
+        }
+        
+        private void OnStatusChangedAsync(Client.ClientStatus status)
+        {
+            Invoke(OnStatusChangedAction, status);
+        }
+
+        private void OnDataReceived(byte[] data)
+        {
+            rtbLog.Text += $"Data:\n{IncomingEncoding.GetString(data)}\n";
+        }
+
+        private void OnDataReceivedAsync(byte[] data)
+        {
+            Invoke(OnDataReceivedAction, data);
+        }
+
         private void MainForm_Load(object sender, EventArgs e)
         {
-            Logger.Write("Application was loaded.");
+            Logger?.Write("Application was loaded.");
+        }
+
+        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Logger?.Write("Application was closed.");
+        }
+
+        private void RTBLog_TextChanged(object sender, EventArgs e)
+        {
+            rtbLog.SelectionStart = rtbLog.Text.Length;
+            rtbLog.ScrollToCaret();
+        }
+
+        private void BProtocolType_Click(object sender, EventArgs e)
+        {
+            switch (bProtocolType.Text)
+            {
+                case "TCP":
+                    Client.ProtocolType = ProtocolType.Udp;
+                    Client.SocketType = SocketType.Dgram;
+                    bProtocolType.Text = "UDP";
+                    break;
+                case "UDP":
+                    Client.ProtocolType = ProtocolType.IP;
+                    Client.SocketType = SocketType.Stream;
+                    bProtocolType.Text = "IP";
+                    break;
+                default:
+                    Client.ProtocolType = ProtocolType.Tcp;
+                    Client.SocketType = SocketType.Stream;
+                    bProtocolType.Text = "TCP";
+                    break;
+            }
+        }
+
+        private void BAddressFamily_Click(object sender, EventArgs e)
+        {
+            switch (bAddressFamily.Text)
+            {
+                case "IPv4":
+                    Client.AddressFamily = AddressFamily.InterNetworkV6;
+                    bAddressFamily.Text = "IPv6";
+                    break;
+                default:
+                    Client.AddressFamily = AddressFamily.InterNetwork;
+                    bAddressFamily.Text = "IPv4";
+                    break;
+            }
+        }
+
+        private void BIncomingEncoding_Click(object sender, EventArgs e)
+        {
+            switch (bIncomingEncoding.Text)
+            {
+                case "Default":
+                    IncomingEncoding = Encoding.ASCII;
+                    bIncomingEncoding.Text = "ASCII";
+                    break;
+                case "ASCII":
+                    IncomingEncoding = Encoding.UTF8;
+                    bIncomingEncoding.Text = "UTF-8";
+                    break;
+                case "UTF-8":
+                    IncomingEncoding = Encoding.Unicode;
+                    bIncomingEncoding.Text = "Unicode";
+                    break;
+                case "Unicode":
+                    IncomingEncoding = Hexadecimal.Hex;
+                    bIncomingEncoding.Text = "HEX";
+                    break;
+                case "HEX":
+                    IncomingEncoding = Hexadecimal.HASCII;
+                    bIncomingEncoding.Text = "HASCII";
+                    break;
+                default:
+                    IncomingEncoding = Encoding.Default;
+                    bIncomingEncoding.Text = "Default";
+                    break;
+            }
+        }
+
+        private void BOutcomingEncoding_Click(object sender, EventArgs e)
+        {
+            switch (bOutcomingEncoding.Text)
+            {
+                case "Default":
+                    OutcomingEncoding = Encoding.ASCII;
+                    bOutcomingEncoding.Text = "ASCII";
+                    break;
+                case "ASCII":
+                    OutcomingEncoding = Encoding.UTF8;
+                    bOutcomingEncoding.Text = "UTF-8";
+                    break;
+                case "UTF-8":
+                    OutcomingEncoding = Encoding.Unicode;
+                    bOutcomingEncoding.Text = "Unicode";
+                    break;
+                case "Unicode":
+                    OutcomingEncoding = Hexadecimal.Hex;
+                    bOutcomingEncoding.Text = "HEX";
+                    break;
+                case "HEX":
+                    OutcomingEncoding = Hexadecimal.HASCII;
+                    bOutcomingEncoding.Text = "HASCII";
+                    break;
+                case "HASCII":
+                    bOutcomingEncoding.Text = "Command";
+                    bSend.Text = "Execute";
+                    break;
+                default:
+                    OutcomingEncoding = Encoding.Default;
+                    bOutcomingEncoding.Text = "Default";
+                    if (Client.Status == Client.ClientStatus.Connected)
+                        bSend.Text = "Send";
+                    else
+                        bSend.Text = "Echo";
+                    break;
+            }
         }
 
         private void BConnect_Click(object sender, EventArgs e)
@@ -42,49 +234,31 @@ namespace MainDen.ClientSocketToolkit
                     Client.ConnectAsync(tbServer.Text, tbPort.Text);
                     break;
                 case Client.ClientStatus.Connected:
+                case Client.ClientStatus.Connecting:
                     Client.DisconnectAsync();
                     break;
             }
         }
 
-        private void OnClientStausChanged(Client.ClientStatus status)
+        private void BSend_Click(object sender, EventArgs e)
         {
-            Invoke(new Action(() =>
+            switch (bSend.Text)
             {
-                if (status == Client.ClientStatus.Available)
-                {
-                    bProtocolType.Enabled = true;
-                    bAddressFamily.Enabled = true;
-                    tbServer.Enabled = true;
-                    tbPort.Enabled = true;
-                }
-                else
-                {
-                    bProtocolType.Enabled = false;
-                    bAddressFamily.Enabled = false;
-                    tbServer.Enabled = false;
-                    tbPort.Enabled = false;
-                }
-                switch (status)
-                {
-                    case Client.ClientStatus.Available:
-                        bConnect.Text = "Connect";
-                        bConnect.Enabled = true;
-                        break;
-                    case Client.ClientStatus.Connecting:
-                        bConnect.Text = "Connecting..";
-                        bConnect.Enabled = false;
-                        break;
-                    case Client.ClientStatus.Connected:
-                        bConnect.Text = "Disconnect";
-                        bConnect.Enabled = true;
-                        break;
-                    case Client.ClientStatus.Disconnecting:
-                        bConnect.Text = "Disconnecting..";
-                        bConnect.Enabled = false;
-                        break;
-                }
-            }));
+                case "Send":
+                    Client.SendAsync(OutcomingEncoding.GetBytes(tbMessage.Text));
+                    break;
+                case "Echo":
+                    rtbLog.Text += $"Echo:\n{IncomingEncoding.GetString(OutcomingEncoding.GetBytes(tbMessage.Text))}\n";
+                    break;
+                case "Execute":
+                    ExecuteCommand(tbMessage.Text);
+                    break;
+            }
+        }
+
+        private void ExecuteCommand(string command)
+        {
+            Logger?.Write("Command execution is not yet supported.");
         }
     }
 }

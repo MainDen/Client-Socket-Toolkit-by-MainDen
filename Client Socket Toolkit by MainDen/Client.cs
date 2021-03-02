@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 
 namespace MainDen.ClientSocketToolkit
@@ -16,6 +13,7 @@ namespace MainDen.ClientSocketToolkit
             addressFamily = AddressFamily.InterNetwork;
             socketType = SocketType.Stream;
             protocolType = ProtocolType.Tcp;
+            bufferSize = 1024;
         }
         private readonly object lStatus = new object();
         public enum ClientStatus
@@ -41,6 +39,7 @@ namespace MainDen.ClientSocketToolkit
             }
         }
         public event Action<ClientStatus> StatusChanged;
+        public event Action<byte[]> DataReceived;
         private readonly object lSettings = new object();
         private AddressFamily addressFamily;
         public AddressFamily AddressFamily
@@ -84,6 +83,20 @@ namespace MainDen.ClientSocketToolkit
                     protocolType = value;
             }
         }
+        private int bufferSize;
+        public int BufferSize
+        {
+            get
+            {
+                lock (lSettings)
+                    return bufferSize;
+            }
+            set
+            {
+                lock (lSettings)
+                    bufferSize = value;
+            }
+        }
         private Socket socket;
         private Socket Socket
         {
@@ -119,22 +132,25 @@ namespace MainDen.ClientSocketToolkit
         private Thread Connecting
         {
             get => new Thread(arg => {
-                Socket socket = Socket;
-                string[] states = arg as string[];
-                IPAddress[] server;
-                int port;
+                Socket socket = null;
                 try
                 {
+                    socket = Socket;
+                    string[] states = arg as string[];
+                    IPAddress[] server;
+                    int port;
                     server = Dns.GetHostAddresses(states[0]);
                     port = int.Parse(states[1]);
                     Logger?.Write("Connecting to server...");
                     socket.Connect(server, port);
-                    Logger?.Write($"Connected to server ({(socket.RemoteEndPoint as IPEndPoint)?.Address}).");
+                    Logger?.Write($"Connected to server ({(socket.RemoteEndPoint as IPEndPoint).Address}).");
                     Status = ClientStatus.Connected;
+                    Receiving.Start();
                 }
+                catch (ObjectDisposedException) { }
                 catch (Exception e)
                 {
-                    Logger?.Write(e.Message, Logger.LoggerSender.Error);
+                    Logger?.Write(e?.Message, Logger.LoggerSender.Error);
                     socket?.Close();
                     Socket = null;
                     Status = ClientStatus.Available;
@@ -144,15 +160,17 @@ namespace MainDen.ClientSocketToolkit
         private Thread Disconnecting
         {
             get => new Thread(() => {
-                Socket socket = Socket;
+                Socket socket = null;
                 try
                 {
+                    socket = Socket;
                     Logger?.Write($"Disconnecting from server...");
-                    socket?.Shutdown(SocketShutdown.Both);
+                    if (socket.Connected)
+                        socket.Shutdown(SocketShutdown.Both);
                 }
                 catch (Exception e)
                 {
-                    Logger?.Write(e.Message, Logger.LoggerSender.Error);
+                    Logger?.Write(e?.Message, Logger.LoggerSender.Error);
                 }
                 finally
                 {
@@ -166,15 +184,51 @@ namespace MainDen.ClientSocketToolkit
         private Thread Sending
         {
             get => new Thread(arg => {
-                Socket socket = Socket;
-                byte[] data = arg as byte[];
-                int len = data.Length;
+                Socket socket = null;
                 try
                 {
+                    socket = Socket;
+                    byte[] data = arg as byte[];
+                    int len = data.Length;
                     Logger?.Write($"Sending {len} bytes to server...");
-                    int sent = socket?.Send(data) ?? 0;
+                    int sent = socket.Send(data);
                     Logger?.Write($"Sent {sent} bytes to server.");
-                    if (!(socket?.Connected ?? false))
+                    if (!(socket.Connected))
+                    {
+                        socket.Close();
+                        Socket = null;
+                        Logger?.Write($"Server closed the connection.");
+                        Status = ClientStatus.Available;
+                    }
+                }
+                catch (ObjectDisposedException) { }
+                catch (Exception e)
+                {
+                    Logger?.Write(e?.Message, Logger.LoggerSender.Error);
+                }
+            });
+        }
+        private Thread Receiving
+        {
+            get => new Thread(() => {
+                Socket socket = null;
+                try
+                {
+                    socket = Socket;
+                    while (socket.Connected)
+                    {
+                        Thread.Sleep(10);
+                        byte[] buffer = new byte[BufferSize];
+                        int len = socket.Receive(buffer);
+                        if (len == 0)
+                            continue;
+                        byte[] data = new byte[len];
+                        for (int i = 0; i < len; ++i)
+                            data[i] = buffer[i];
+                        Logger?.Write($"Received {len} bytes from server.");
+                        DataReceived?.Invoke(data);
+                    }
+                    if (!(socket.Connected))
                     {
                         socket?.Close();
                         Socket = null;
@@ -182,9 +236,10 @@ namespace MainDen.ClientSocketToolkit
                         Status = ClientStatus.Available;
                     }
                 }
+                catch (ObjectDisposedException) { }
                 catch (Exception e)
                 {
-                    Logger?.Write(e.Message, Logger.LoggerSender.Error);
+                    //Logger?.Write(e?.Message, Logger.LoggerSender.Error);
                 }
             });
         }
@@ -204,13 +259,15 @@ namespace MainDen.ClientSocketToolkit
         public void DisconnectAsync()
         {
             bool isConnected;
+            bool isConnecting;
             lock (lStatus)
             {
                 isConnected = Status == ClientStatus.Connected;
-                if (isConnected)
+                isConnecting = Status == ClientStatus.Connecting;
+                if (isConnected || isConnecting)
                     Status = ClientStatus.Disconnecting;
             }
-            if (!isConnected)
+            if (!(isConnected || isConnecting))
                 return;
             Disconnecting.Start();
         }

@@ -9,7 +9,7 @@ namespace MainDen.ClientSocketToolkit
         {
             fileDateTimeFormat = "yyyy-MM-dd";
             pathFormat = @".\log_{0}.txt";
-            logDateTimeFormat = "yyyy-MM-dd HH:mm:ss";
+            messageDateTimeFormat = "yyyy-MM-dd HH:mm:ss";
             messageFormat = "\n({0} {1}) {2}\n";
             dataFormat = "(DATA)\n{3}\n";
         }
@@ -17,7 +17,7 @@ namespace MainDen.ClientSocketToolkit
         {
             this.fileDateTimeFormat = fileDateTimeFormat ?? "yyyy-MM-dd";
             this.pathFormat = pathFormat ?? @".\log_{0}.txt";
-            this.logDateTimeFormat = logDateTimeFormat ?? "yyyy-MM-dd HH:mm:ss";
+            this.messageDateTimeFormat = logDateTimeFormat ?? "yyyy-MM-dd HH:mm:ss";
             this.messageFormat = messageFormat ?? "({0} {1}) {2}\n";
             this.dataFormat = dataFormat ?? "DATA:\n{3}\n";
         }
@@ -65,20 +65,20 @@ namespace MainDen.ClientSocketToolkit
             lock (lSettings)
                 return string.Format(pathFormat, fileDateTime.ToString(fileDateTimeFormat));
         }
-        private string logDateTimeFormat;
-        public string LogDateTimeFormat
+        private string messageDateTimeFormat;
+        public string MessageDateTimeFormat
         {
             get
             {
                 lock (lSettings)
-                    return logDateTimeFormat;
+                    return messageDateTimeFormat;
             }
             set
             {
                 if (value is null)
                     return;
                 lock (lSettings)
-                    logDateTimeFormat = value;
+                    messageDateTimeFormat = value;
             }
         }
         private string messageFormat;
@@ -123,7 +123,7 @@ namespace MainDen.ClientSocketToolkit
                 DateTime now = DateTime.Now;
                 string path = GetFilePath(now);
                 string logMessage = string.Format(messageFormat,
-                    logSender, now.ToString(logDateTimeFormat), message ?? "NULL");
+                    logSender, now.ToString(messageDateTimeFormat), message ?? "NULL");
                 if (WriteLogToCustom)
                     CustomLogging?.Invoke(logMessage);
                 if (WriteLogToFile)
@@ -137,7 +137,7 @@ namespace MainDen.ClientSocketToolkit
                 DateTime now = DateTime.Now;
                 string path = GetFilePath(now);
                 string logMessage = string.Format(messageFormat + dataFormat,
-                    logSender, now.ToString(logDateTimeFormat), message ?? "NULL", data ?? "NULL");
+                    logSender, now.ToString(messageDateTimeFormat), message ?? "NULL", data ?? "NULL");
                 if (WriteLogToCustom)
                     CustomLogging?.Invoke(logMessage);
                 if (WriteLogToFile)

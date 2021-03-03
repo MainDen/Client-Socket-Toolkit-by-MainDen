@@ -269,15 +269,22 @@ namespace MainDen.ClientSocketToolkit
         }
         public void SendAsync(byte[] data)
         {
-            bool isConnected = Status == ClientStatus.Connected; ;
+            bool isConnected = Status == ClientStatus.Connected;
             if (!isConnected)
                 return;
             Sending.Start(data);
         }
-        public void Abort()
+        public void Reset()
         {
             Socket?.Close();
             Socket = null;
-        }
+            Status = ClientStatus.Available;
+            lock (lSettings)
+            {
+                addressFamily = AddressFamily.InterNetwork;
+                socketType = SocketType.Stream;
+                protocolType = ProtocolType.Tcp;
+            }
+        } 
     }
 }

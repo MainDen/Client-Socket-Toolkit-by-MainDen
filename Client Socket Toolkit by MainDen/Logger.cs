@@ -5,30 +5,15 @@ namespace MainDen.ClientSocketToolkit
 {
     public class Logger
     {
-        public Logger()
-        {
-            fileDateTimeFormat = "yyyy-MM-dd";
-            pathFormat = @".\log_{0}.txt";
-            messageDateTimeFormat = "yyyy-MM-dd HH:mm:ss";
-            messageFormat = "\n({0} {1}) {2}\n";
-            dataFormat = "(DATA)\n{3}\n";
-        }
-        public Logger(string fileDateTimeFormat, string pathFormat, string logDateTimeFormat, string messageFormat, string dataFormat)
-        {
-            this.fileDateTimeFormat = fileDateTimeFormat ?? "yyyy-MM-dd";
-            this.pathFormat = pathFormat ?? @".\log_{0}.txt";
-            this.messageDateTimeFormat = logDateTimeFormat ?? "yyyy-MM-dd HH:mm:ss";
-            this.messageFormat = messageFormat ?? "({0} {1}) {2}\n";
-            this.dataFormat = dataFormat ?? "DATA:\n{3}\n";
-        }
-        public enum LoggerSender : int
+        public Logger() { }
+        public enum Sender : int
         {
             Log = 0,
             User = 1,
             Error = 2,
         }
-        public event Action<string> CustomLogging;
-        private string fileDateTimeFormat;
+        private readonly object lSettings = new object();
+        private string fileDateTimeFormat = "yyyy-MM-dd";
         public string FileDateTimeFormat
         {
             get
@@ -44,28 +29,28 @@ namespace MainDen.ClientSocketToolkit
                     fileDateTimeFormat = value;
             }
         }
-        private string pathFormat;
-        public string PathFormat
+        private string filePathFormat = @".\log_{0}.txt";
+        public string FilePathFormat
         {
             get
             {
                 lock (lSettings)
-                    return pathFormat;
+                    return filePathFormat;
             }
             set
             {
                 if (value is null)
                     return;
                 lock (lSettings)
-                    pathFormat = value;
+                    filePathFormat = value;
             }
         }
         public string GetFilePath(DateTime fileDateTime)
         {
             lock (lSettings)
-                return string.Format(pathFormat, fileDateTime.ToString(fileDateTimeFormat));
+                return string.Format(filePathFormat, fileDateTime.ToString(fileDateTimeFormat));
         }
-        private string messageDateTimeFormat;
+        private string messageDateTimeFormat = "yyyy-MM-dd HH:mm:ss";
         public string MessageDateTimeFormat
         {
             get
@@ -81,7 +66,7 @@ namespace MainDen.ClientSocketToolkit
                     messageDateTimeFormat = value;
             }
         }
-        private string messageFormat;
+        private string messageFormat = @"\n({0} {1}) {2}\n";
         public string MessageFormat
         {
             get
@@ -97,51 +82,149 @@ namespace MainDen.ClientSocketToolkit
                     messageFormat = value;
             }
         }
-        private string dataFormat;
-        public string DataFormat
+        private string messageDetailsFormat = @"(Details)\n{3}\n";
+        public string MessageDetailsFormat
         {
             get
             {
                 lock (lSettings)
-                    return dataFormat;
+                    return messageDetailsFormat;
             }
             set
             {
                 if (value is null)
                     return;
                 lock (lSettings)
-                    dataFormat = value;
+                    messageDetailsFormat = value;
             }
         }
-        public bool WriteLogToCustom { get; set; } = true;
-        public bool WriteLogToFile { get; set; } = true;
-        private readonly object lSettings = new object();
-        public void Write(string message, LoggerSender logSender = LoggerSender.Log)
+        private Func<string, string> toMultiLine = TextConverter.ToMultiLine;
+        public Func<string, string> ToMultiLine
+        {
+            get
+            {
+                lock (lSettings)
+                    return toMultiLine;
+            }
+            set
+            {
+                if (value is null)
+                    return;
+                lock (lSettings)
+                    toMultiLine = value;
+            }
+        }
+        public string GetLogMessage(Sender sender, DateTime dateTime, string message)
+        {
+            lock (lSettings)
+            return string.Format(
+                ToMultiLine?.Invoke(messageFormat) ?? messageFormat,
+                sender,
+                dateTime.ToString(messageDateTimeFormat),
+                message ?? "NULL");
+        }
+        public string GetLogMessage(Sender sender, DateTime dateTime, string message, string details)
+        {
+            lock (lSettings)
+                return string.Format(
+                    ToMultiLine?.Invoke(messageFormat) ?? messageFormat +
+                    ToMultiLine?.Invoke(messageDetailsFormat) ?? messageDetailsFormat,
+                    sender,
+                    dateTime.ToString(messageDateTimeFormat),
+                    message ?? "NULL",
+                    details ?? "NULL");
+        }
+        private bool writeLogToCustom = true;
+        public bool WriteLogToCustom
+        {
+            get
+            {
+                lock (lSettings)
+                    return writeLogToCustom;
+            }
+            set
+            {
+                lock (lSettings)
+                    writeLogToCustom = value;
+            }
+        }
+        private bool writeLogToConsole = true;
+        public bool WriteLogToConsole
+        {
+            get
+            {
+                lock (lSettings)
+                    return writeLogToConsole;
+            }
+            set
+            {
+                lock (lSettings)
+                    writeLogToConsole = value;
+            }
+        }
+        private bool writeLogToFile = true;
+        public bool WriteLogToFile
+        {
+            get
+            {
+                lock (lSettings)
+                    return writeLogToFile;
+            }
+            set
+            {
+                lock (lSettings)
+                    writeLogToFile = value;
+            }
+        }
+        public event Action<string> CustomWrite;
+        public void Write(string logMessage, string filePath)
         {
             lock (lSettings)
             {
-                DateTime now = DateTime.Now;
-                string path = GetFilePath(now);
-                string logMessage = string.Format(messageFormat,
-                    logSender, now.ToString(messageDateTimeFormat), message ?? "NULL");
+                if (logMessage is null)
+                    throw new ArgumentNullException(nameof(logMessage));
+                if (filePath is null)
+                    throw new ArgumentNullException(nameof(filePath));
                 if (WriteLogToCustom)
-                    CustomLogging?.Invoke(logMessage);
+                    CustomWrite?.Invoke(logMessage);
+                if (WriteLogToConsole)
+                    Console.Write(logMessage);
                 if (WriteLogToFile)
-                    File.AppendAllText(path, logMessage);
+                    File.AppendAllText(filePath, logMessage);
             }
         }
-        public void Write(string message, object data, LoggerSender logSender = LoggerSender.Log)
+        public void Write(Sender sender, DateTime dateTime, string message)
         {
             lock (lSettings)
             {
-                DateTime now = DateTime.Now;
-                string path = GetFilePath(now);
-                string logMessage = string.Format(messageFormat + dataFormat,
-                    logSender, now.ToString(messageDateTimeFormat), message ?? "NULL", data ?? "NULL");
-                if (WriteLogToCustom)
-                    CustomLogging?.Invoke(logMessage);
-                if (WriteLogToFile)
-                    File.AppendAllText(path, logMessage);
+                string logMessage = GetLogMessage(sender, dateTime, message);
+                string filePath = GetFilePath(dateTime);
+                Write(logMessage, filePath);
+            }
+        }
+        public void Write(Sender sender, DateTime dateTime, string message, string details)
+        {
+            lock (lSettings)
+            {
+                string logMessage = GetLogMessage(sender, dateTime, message, details);
+                string filePath = GetFilePath(dateTime);
+                Write(logMessage, filePath);
+            }
+        }
+        public void Write(string message, Sender sender = Sender.Log)
+        {
+            lock (lSettings)
+            {
+                DateTime dateTime = DateTime.Now;
+                Write(sender, dateTime, message);
+            }
+        }
+        public void Write(string message, string details, Sender sender = Sender.Log)
+        {
+            lock (lSettings)
+            {
+                DateTime dateTime = DateTime.Now;
+                Write(sender, dateTime, message, details);
             }
         }
     }

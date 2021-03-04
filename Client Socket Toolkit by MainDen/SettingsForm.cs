@@ -17,24 +17,24 @@ namespace MainDen.ClientSocketToolkit
             InitializeComponent();
             Logger = logger;
             Client = client;
-            ReplaceRegex = new Regex(ReplacePattern);
-            ReturnRegex = new Regex(ReturnPattern);
+            MultiLineRegex = new Regex(MultiLinePattern);
+            SingleLineRegex = new Regex(SingleLinePattern);
             Reset();
         }
 
-        private Regex ReplaceRegex;
+        private readonly Regex MultiLineRegex;
 
-        private Regex ReturnRegex;
+        private readonly Regex SingleLineRegex;
 
-        private readonly string ReplacePattern = "(\\|\r\n|\r|\n)";
+        private readonly string MultiLinePattern = @"\\|\r\n|\r|\n";
 
-        private readonly string ReturnPattern = @"((\\\\)|(\\r\\n)|(\\r)|(\\n))";
+        private readonly string SingleLinePattern = @"\\\\|\\r\\n|\\r|\\n";
 
-        private string ReplaceNewLine(Match match)
+        private string ToSingleLine(Match match)
         {
             switch (match.Value)
             {
-                case @"\":
+                case "\\":
                     return @"\\";
                 case "\r\n":
                     return @"\r\n";
@@ -47,7 +47,7 @@ namespace MainDen.ClientSocketToolkit
             }
         }
 
-        private string ReturnNewLine(Match match)
+        private string ToMultiLine(Match match)
         {
             switch (match.Value)
             {
@@ -71,10 +71,10 @@ namespace MainDen.ClientSocketToolkit
             if (Client is null)
                 return;
             tbLFDTF.Text = Logger.FileDateTimeFormat;
-            tbLFPF.Text = Logger.PathFormat;
-            tbLMF.Text = ReplaceRegex.Replace(Logger.MessageFormat, ReplaceNewLine);
+            tbLFPF.Text = Logger.FilePathFormat;
+            tbLMF.Text = MultiLineRegex.Replace(Logger.MessageFormat, ToSingleLine);
             tbLMDTF.Text = Logger.MessageDateTimeFormat;
-            tbLMDF.Text = ReplaceRegex.Replace(Logger.DataFormat, ReplaceNewLine);
+            tbLMDF.Text = MultiLineRegex.Replace(Logger.MessageDetailsFormat, ToSingleLine);
             nudCBS.Value = Client.BufferSize;
         }
 
@@ -115,10 +115,10 @@ namespace MainDen.ClientSocketToolkit
                     throw;
                 }
                 Logger.FileDateTimeFormat = tbLFDTF.Text;
-                Logger.PathFormat = tbLFPF.Text;
-                Logger.MessageFormat = ReturnRegex.Replace(tbLMF.Text, ReturnNewLine);
+                Logger.FilePathFormat = tbLFPF.Text;
+                Logger.MessageFormat = SingleLineRegex.Replace(tbLMF.Text, ToMultiLine);
                 Logger.MessageDateTimeFormat = tbLMDTF.Text;
-                Logger.DataFormat = ReturnRegex.Replace(tbLMDF.Text, ReturnNewLine);
+                Logger.MessageDetailsFormat = SingleLineRegex.Replace(tbLMDF.Text, ToMultiLine);
                 Client.BufferSize = (int)nudCBS.Value;
                 applied = true;
             }
@@ -162,7 +162,7 @@ namespace MainDen.ClientSocketToolkit
                 SampleLogWrite(SampleMessages[i]);
                 double j = Random.NextDouble();
                 if (j > 0.7)
-                    SampleLogWrite("It could have been a error. Be careful!", "Any data.", Logger.LoggerSender.Error);
+                    SampleLogWrite("It could have been a error. Be careful!", "Any data.", Logger.Sender.Error);
             }
             catch
             {
@@ -170,19 +170,19 @@ namespace MainDen.ClientSocketToolkit
             }
         }
 
-        private void SampleLogWrite(string message, Logger.LoggerSender logSender = Logger.LoggerSender.Log)
+        private void SampleLogWrite(string message, Logger.Sender logSender = Logger.Sender.Log)
         {
             DateTime now = DateTime.Now;
-            string logMessage = string.Format(ReturnRegex.Replace(tbLMF.Text, ReturnNewLine),
+            string logMessage = string.Format(SingleLineRegex.Replace(tbLMF.Text, ToMultiLine),
                 logSender, now.ToString(tbLMDTF.Text), message ?? "NULL");
             rtbEasyLog.Text += logMessage;
         }
 
-        private void SampleLogWrite(string message, object data, Logger.LoggerSender logSender = Logger.LoggerSender.Log)
+        private void SampleLogWrite(string message, object data, Logger.Sender logSender = Logger.Sender.Log)
         {
             DateTime now = DateTime.Now;
-            string logMessage = string.Format(ReturnRegex.Replace(tbLMF.Text, ReturnNewLine) +
-                ReturnRegex.Replace(tbLMDF.Text, ReturnNewLine),
+            string logMessage = string.Format(SingleLineRegex.Replace(tbLMF.Text, ToMultiLine) +
+                SingleLineRegex.Replace(tbLMDF.Text, ToMultiLine),
                 logSender, now.ToString(tbLMDTF.Text), message ?? "NULL", data ?? "NULL");
             rtbEasyLog.Text += logMessage;
         }

@@ -150,7 +150,7 @@ namespace MainDen.ClientSocketToolkit
                 catch (ObjectDisposedException) { }
                 catch (Exception e)
                 {
-                    Logger?.Write(e?.Message, Logger.LoggerSender.Error);
+                    Logger?.Write(e?.Message, Logger.Sender.Error);
                     socket?.Close();
                     Socket = null;
                     Status = ClientStatus.Available;
@@ -170,7 +170,7 @@ namespace MainDen.ClientSocketToolkit
                 }
                 catch (Exception e)
                 {
-                    Logger?.Write(e?.Message, Logger.LoggerSender.Error);
+                    Logger?.Write(e?.Message, Logger.Sender.Error);
                 }
                 finally
                 {
@@ -204,7 +204,7 @@ namespace MainDen.ClientSocketToolkit
                 catch (ObjectDisposedException) { }
                 catch (Exception e)
                 {
-                    Logger?.Write(e?.Message, Logger.LoggerSender.Error);
+                    Logger?.Write(e?.Message, Logger.Sender.Error);
                 }
             });
         }

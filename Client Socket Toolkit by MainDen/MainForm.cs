@@ -15,7 +15,7 @@ namespace MainDen.ClientSocketToolkit
             {
                 rtbLog.Text += message;
             });
-            Logger.CustomLogging += new Action<string>(message => rtbLog.Invoke(LogWrite, message));
+            Logger.CustomWrite += new Action<string>(message => rtbLog.Invoke(LogWrite, message));
             Client.Logger = Logger;
             Client.StatusChanged += OnStatusChangedAsync;
             Client.DataReceived += OnDataReceivedAsync;

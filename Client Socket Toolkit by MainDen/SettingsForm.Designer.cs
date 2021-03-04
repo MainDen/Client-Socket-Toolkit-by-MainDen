@@ -42,7 +42,7 @@ namespace MainDen.ClientSocketToolkit
             this.lLMDTF = new System.Windows.Forms.Label();
             this.tbLMF = new System.Windows.Forms.TextBox();
             this.lLMF = new System.Windows.Forms.Label();
-            this.tbLFNFResult = new System.Windows.Forms.TextBox();
+            this.tbLFPFResult = new System.Windows.Forms.TextBox();
             this.tbLFPF = new System.Windows.Forms.TextBox();
             this.lLogger = new System.Windows.Forms.Label();
             this.lLFDTF = new System.Windows.Forms.Label();
@@ -51,8 +51,8 @@ namespace MainDen.ClientSocketToolkit
             this.lFPF = new System.Windows.Forms.Label();
             this.nudCBS = new System.Windows.Forms.NumericUpDown();
             this.bApply = new System.Windows.Forms.Button();
-            this.tSLF = new System.Windows.Forms.Timer(this.components);
             this.rtbEasyLog = new System.Windows.Forms.RichTextBox();
+            this.tSLF = new System.Windows.Forms.Timer(this.components);
             this.tlpSettings.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudCBS)).BeginInit();
             this.SuspendLayout();
@@ -62,8 +62,8 @@ namespace MainDen.ClientSocketToolkit
             this.tlpSettings.ColumnCount = 2;
             this.tlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 37.5F));
             this.tlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 62.5F));
-            this.tlpSettings.Controls.Add(this.bAccept, 1, 15);
-            this.tlpSettings.Controls.Add(this.bReset, 0, 15);
+            this.tlpSettings.Controls.Add(this.bAccept, 1, 16);
+            this.tlpSettings.Controls.Add(this.bReset, 0, 16);
             this.tlpSettings.Controls.Add(this.lSLF, 1, 5);
             this.tlpSettings.Controls.Add(this.lCBS, 0, 12);
             this.tlpSettings.Controls.Add(this.lClient, 0, 11);
@@ -73,7 +73,7 @@ namespace MainDen.ClientSocketToolkit
             this.tlpSettings.Controls.Add(this.lLMDTF, 0, 7);
             this.tlpSettings.Controls.Add(this.tbLMF, 0, 6);
             this.tlpSettings.Controls.Add(this.lLMF, 0, 5);
-            this.tlpSettings.Controls.Add(this.tbLFNFResult, 1, 4);
+            this.tlpSettings.Controls.Add(this.tbLFPFResult, 1, 4);
             this.tlpSettings.Controls.Add(this.tbLFPF, 0, 4);
             this.tlpSettings.Controls.Add(this.lLogger, 0, 0);
             this.tlpSettings.Controls.Add(this.lLFDTF, 0, 1);
@@ -81,12 +81,15 @@ namespace MainDen.ClientSocketToolkit
             this.tlpSettings.Controls.Add(this.tbLFDTFResult, 1, 2);
             this.tlpSettings.Controls.Add(this.lFPF, 0, 3);
             this.tlpSettings.Controls.Add(this.nudCBS, 0, 13);
-            this.tlpSettings.Controls.Add(this.bApply, 1, 14);
+            this.tlpSettings.Controls.Add(this.bApply, 1, 15);
             this.tlpSettings.Controls.Add(this.rtbEasyLog, 1, 6);
             this.tlpSettings.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlpSettings.Location = new System.Drawing.Point(0, 0);
             this.tlpSettings.Name = "tlpSettings";
-            this.tlpSettings.RowCount = 10;
+            this.tlpSettings.RowCount = 13;
+            this.tlpSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tlpSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tlpSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlpSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlpSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlpSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -226,14 +229,14 @@ namespace MainDen.ClientSocketToolkit
             this.lLMF.TabIndex = 7;
             this.lLMF.Text = "Message format:";
             // 
-            // tbLFNFResult
+            // tbLFPFResult
             // 
-            this.tbLFNFResult.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbLFNFResult.Location = new System.Drawing.Point(177, 86);
-            this.tbLFNFResult.Name = "tbLFNFResult";
-            this.tbLFNFResult.ReadOnly = true;
-            this.tbLFNFResult.Size = new System.Drawing.Size(286, 20);
-            this.tbLFNFResult.TabIndex = 6;
+            this.tbLFPFResult.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tbLFPFResult.Location = new System.Drawing.Point(177, 86);
+            this.tbLFPFResult.Name = "tbLFPFResult";
+            this.tbLFPFResult.ReadOnly = true;
+            this.tbLFPFResult.Size = new System.Drawing.Size(286, 20);
+            this.tbLFPFResult.TabIndex = 6;
             // 
             // tbLFPF
             // 
@@ -242,6 +245,7 @@ namespace MainDen.ClientSocketToolkit
             this.tbLFPF.Name = "tbLFPF";
             this.tbLFPF.Size = new System.Drawing.Size(168, 20);
             this.tbLFPF.TabIndex = 5;
+            this.tbLFPF.TextChanged += new System.EventHandler(this.TBLFPF_TextChanged);
             // 
             // lLogger
             // 
@@ -274,6 +278,7 @@ namespace MainDen.ClientSocketToolkit
             this.tbLFDTF.Name = "tbLFDTF";
             this.tbLFDTF.Size = new System.Drawing.Size(168, 20);
             this.tbLFDTF.TabIndex = 2;
+            this.tbLFDTF.TextChanged += new System.EventHandler(this.TBLFDTF_TextChanged);
             // 
             // tbLFDTFResult
             // 
@@ -337,12 +342,6 @@ namespace MainDen.ClientSocketToolkit
             this.bApply.UseVisualStyleBackColor = true;
             this.bApply.Click += new System.EventHandler(this.BApply_Click);
             // 
-            // tSLF
-            // 
-            this.tSLF.Enabled = true;
-            this.tSLF.Interval = 5000;
-            this.tSLF.Tick += new System.EventHandler(this.TSLF_Tick);
-            // 
             // rtbEasyLog
             // 
             this.rtbEasyLog.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -354,6 +353,12 @@ namespace MainDen.ClientSocketToolkit
             this.rtbEasyLog.TabIndex = 23;
             this.rtbEasyLog.Text = "";
             this.rtbEasyLog.TextChanged += new System.EventHandler(this.RTBEasyLog_TextChanged);
+            // 
+            // tSLF
+            // 
+            this.tSLF.Enabled = true;
+            this.tSLF.Interval = 5000;
+            this.tSLF.Tick += new System.EventHandler(this.TSLF_Tick);
             // 
             // SettingsForm
             // 
@@ -381,7 +386,7 @@ namespace MainDen.ClientSocketToolkit
         private System.Windows.Forms.Label lLFDTF;
         private System.Windows.Forms.TextBox tbLFDTF;
         private System.Windows.Forms.TextBox tbLFDTFResult;
-        private System.Windows.Forms.TextBox tbLFNFResult;
+        private System.Windows.Forms.TextBox tbLFPFResult;
         private System.Windows.Forms.TextBox tbLFPF;
         private System.Windows.Forms.Label lFPF;
         private System.Windows.Forms.TextBox tbLMDTF;

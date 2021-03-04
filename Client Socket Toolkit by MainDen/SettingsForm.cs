@@ -78,26 +78,52 @@ namespace MainDen.ClientSocketToolkit
             nudCBS.Value = Client.BufferSize;
         }
 
-        private void Apply()
+        private bool Apply()
         {
+            bool applied = false;
             if (Logger is null)
-                return;
+                return applied;
             if (Client is null)
-                return;
+                return applied;
             try
             {
-                SampleLogWrite("Apply settings.", "OK");
+                try
+                {
+                    tbLFPFResult.Text = string.Format(tbLFPF.Text, tbLFDTFResult.Text);
+                }
+                catch
+                {
+                    MessageBox.Show("Invalid log file path format.", "Error");
+                    throw;
+                }
+                try
+                {
+                    SampleLogWrite("Apply try 1.");
+                }
+                catch
+                {
+                    MessageBox.Show("Invalid log message format.", "Error");
+                    throw;
+                }
+                try
+                {
+                    SampleLogWrite("Apply try 2.", "OK");
+                }
+                catch
+                {
+                    MessageBox.Show("Invalid log message data format.", "Error");
+                    throw;
+                }
                 Logger.FileDateTimeFormat = tbLFDTF.Text;
                 Logger.PathFormat = tbLFPF.Text;
                 Logger.MessageFormat = ReturnRegex.Replace(tbLMF.Text, ReturnNewLine);
                 Logger.MessageDateTimeFormat = tbLMDTF.Text;
                 Logger.DataFormat = ReturnRegex.Replace(tbLMDF.Text, ReturnNewLine);
                 Client.BufferSize = (int)nudCBS.Value;
+                applied = true;
             }
-            catch
-            {
-                rtbEasyLog.Text += "\nInvalid format.";
-            }
+            catch { }
+            return applied;
         }
 
         private Logger Logger;
@@ -121,6 +147,15 @@ namespace MainDen.ClientSocketToolkit
 
         private void TSLF_Tick(object sender, EventArgs e)
         {
+            tbLFDTFResult.Text = DateTime.Now.ToString(tbLFDTF.Text);
+            try
+            {
+                tbLFPFResult.Text = string.Format(tbLFPF.Text, tbLFDTFResult.Text);
+            }
+            catch
+            {
+                tbLFPFResult.Text = "Invalid format.";
+            }
             try
             {
                 int i = Random.Next(0, SampleMessages.Count - 1);
@@ -158,14 +193,39 @@ namespace MainDen.ClientSocketToolkit
 
         private void BAccept_Click(object sender, EventArgs e)
         {
-            Apply();
-            Close();
+            if (Apply())
+                Close();
         }
 
         private void RTBEasyLog_TextChanged(object sender, EventArgs e)
         {
             rtbEasyLog.SelectionStart = rtbEasyLog.Text.Length;
             rtbEasyLog.ScrollToCaret();
+        }
+
+        private void TBLFDTF_TextChanged(object sender, EventArgs e)
+        {
+            tbLFDTFResult.Text = DateTime.Now.ToString(tbLFDTF.Text);
+            try
+            {
+                tbLFPFResult.Text = string.Format(tbLFPF.Text, tbLFDTFResult.Text);
+            }
+            catch
+            {
+                tbLFPFResult.Text = "Invalid format.";
+            }
+        }
+
+        private void TBLFPF_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                tbLFPFResult.Text = string.Format(tbLFPF.Text, tbLFDTFResult.Text);
+            }
+            catch
+            {
+                tbLFPFResult.Text = "Invalid format.";
+            }
         }
     }
 }

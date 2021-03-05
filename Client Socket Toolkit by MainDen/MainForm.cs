@@ -11,19 +11,26 @@ namespace MainDen.ClientSocketToolkit
         public MainForm()
         {
             InitializeComponent();
-            Action<string> LogWrite = new Action<string>(message =>
+            TextWrite = new Action<string>(message =>
             {
                 rtbLog.Text += message;
             });
-            Logger.CustomWrite += new Action<string>(message => rtbLog.Invoke(LogWrite, message));
+            TextWriteAsync += new Action<string>(message => rtbLog.Invoke(TextWrite, message));
+            Echo.CustomWrite += TextWriteAsync;
+            Logger.CustomWrite += TextWriteAsync;
             Client.Logger = Logger;
             Client.StatusChanged += OnStatusChangedAsync;
             Client.DataReceived += OnDataReceivedAsync;
         }
+        Action<string> TextWrite;
 
-        Logger Logger = new Logger();
+        Action<string> TextWriteAsync;
 
         Client Client = new Client();
+
+        Echo Echo = new Echo();
+
+        Logger Logger = new Logger();
 
         Encoding IncomingEncoding = Encoding.Default;
 
@@ -283,17 +290,12 @@ namespace MainDen.ClientSocketToolkit
                     Client.SendAsync(OutcomingEncoding.GetBytes(tbMessage.Text));
                     break;
                 case "Echo":
-                    Echo(tbMessage.Text);
+                    Echo.Write(tbMessage.Text);
                     break;
                 case "Execute":
                     ExecuteCommand(tbMessage.Text);
                     break;
             }
-        }
-
-        private void Echo(string text)
-        {
-            rtbLog.Text += $"\n(Echo)\n{IncomingEncoding.GetString(OutcomingEncoding.GetBytes(text))}\n";
         }
 
         private void ExecuteCommand(string command)

@@ -5,7 +5,10 @@ namespace MainDen.ClientSocketToolkit
 {
     public class Logger
     {
-        public Logger() { }
+        public Logger()
+        {
+            MessageFormatsCaching();
+        }
         public enum Sender : int
         {
             Log = 0,
@@ -67,6 +70,7 @@ namespace MainDen.ClientSocketToolkit
             }
         }
         private string messageFormat = @"\n({0} {1}) {2}\n";
+        private string cachedMessageFormat;
         public string MessageFormat
         {
             get
@@ -79,10 +83,14 @@ namespace MainDen.ClientSocketToolkit
                 if (value is null)
                     return;
                 lock (lSettings)
+                {
                     messageFormat = value;
+                    cachedMessageFormat = toMultiLine?.Invoke(messageFormat) ?? messageFormat;
+                }
             }
         }
         private string messageDetailsFormat = @"(Details)\n{3}\n";
+        private string cachedMessageDetailsFormat;
         public string MessageDetailsFormat
         {
             get
@@ -95,7 +103,18 @@ namespace MainDen.ClientSocketToolkit
                 if (value is null)
                     return;
                 lock (lSettings)
+                {
                     messageDetailsFormat = value;
+                    cachedMessageDetailsFormat = toMultiLine?.Invoke(messageDetailsFormat) ?? messageDetailsFormat;
+                }
+            }
+        }
+        private void MessageFormatsCaching()
+        {
+            lock (lSettings)
+            {
+                cachedMessageFormat = toMultiLine?.Invoke(messageFormat) ?? messageFormat;
+                cachedMessageDetailsFormat = toMultiLine?.Invoke(messageDetailsFormat) ?? messageDetailsFormat;
             }
         }
         private Func<string, string> toMultiLine = TextConverter.ToMultiLine;
@@ -111,14 +130,17 @@ namespace MainDen.ClientSocketToolkit
                 if (value is null)
                     return;
                 lock (lSettings)
+                {
                     toMultiLine = value;
+                    MessageFormatsCaching();
+                }
             }
         }
         public string GetLogMessage(Sender sender, DateTime dateTime, string message)
         {
             lock (lSettings)
             return string.Format(
-                ToMultiLine?.Invoke(messageFormat) ?? messageFormat,
+                cachedMessageFormat ?? "\nMESSAGE FORMAT EXCEPTION\n",
                 sender,
                 dateTime.ToString(messageDateTimeFormat),
                 message ?? "NULL");
@@ -127,8 +149,8 @@ namespace MainDen.ClientSocketToolkit
         {
             lock (lSettings)
                 return string.Format(
-                    ToMultiLine?.Invoke(messageFormat) ?? messageFormat +
-                    ToMultiLine?.Invoke(messageDetailsFormat) ?? messageDetailsFormat,
+                    (cachedMessageFormat ?? "\nMESSAGE FORMAT EXCEPTION\n") +
+                    (cachedMessageDetailsFormat ?? "\nMESSAGE DETAILS FORMAT EXCEPTION\n"),
                     sender,
                     dateTime.ToString(messageDateTimeFormat),
                     message ?? "NULL",

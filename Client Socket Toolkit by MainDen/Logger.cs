@@ -7,7 +7,7 @@ namespace MainDen.ClientSocketToolkit
     {
         public Logger()
         {
-            MessageFormatsCaching();
+            FormatsCaching();
         }
         public enum Sender : int
         {
@@ -109,7 +109,7 @@ namespace MainDen.ClientSocketToolkit
                 }
             }
         }
-        private void MessageFormatsCaching()
+        private void FormatsCaching()
         {
             lock (lSettings)
             {
@@ -132,11 +132,11 @@ namespace MainDen.ClientSocketToolkit
                 lock (lSettings)
                 {
                     toMultiLine = value;
-                    MessageFormatsCaching();
+                    FormatsCaching();
                 }
             }
         }
-        public string GetLogMessage(Sender sender, DateTime dateTime, string message)
+        public string GetMessage(Sender sender, DateTime dateTime, string message)
         {
             lock (lSettings)
             return string.Format(
@@ -145,7 +145,7 @@ namespace MainDen.ClientSocketToolkit
                 dateTime.ToString(messageDateTimeFormat),
                 message ?? "NULL");
         }
-        public string GetLogMessage(Sender sender, DateTime dateTime, string message, string details)
+        public string GetMessage(Sender sender, DateTime dateTime, string message, string details)
         {
             lock (lSettings)
                 return string.Format(
@@ -156,50 +156,50 @@ namespace MainDen.ClientSocketToolkit
                     message ?? "NULL",
                     details ?? "NULL");
         }
-        private bool writeLogToCustom = true;
-        public bool WriteLogToCustom
+        private bool writeToCustom = true;
+        public bool WriteToCustom
         {
             get
             {
                 lock (lSettings)
-                    return writeLogToCustom;
+                    return writeToCustom;
             }
             set
             {
                 lock (lSettings)
-                    writeLogToCustom = value;
+                    writeToCustom = value;
             }
         }
-        private bool writeLogToConsole = true;
-        public bool WriteLogToConsole
+        private bool writeToConsole = true;
+        public bool WriteToConsole
         {
             get
             {
                 lock (lSettings)
-                    return writeLogToConsole;
+                    return writeToConsole;
             }
             set
             {
                 lock (lSettings)
-                    writeLogToConsole = value;
+                    writeToConsole = value;
             }
         }
-        private bool writeLogToFile = true;
-        public bool WriteLogToFile
+        private bool writeToFile = true;
+        public bool WriteToFile
         {
             get
             {
                 lock (lSettings)
-                    return writeLogToFile;
+                    return writeToFile;
             }
             set
             {
                 lock (lSettings)
-                    writeLogToFile = value;
+                    writeToFile = value;
             }
         }
         public event Action<string> CustomWrite;
-        public void Write(string logMessage, string filePath)
+        public void WriteCustom(string logMessage, string filePath)
         {
             lock (lSettings)
             {
@@ -207,11 +207,11 @@ namespace MainDen.ClientSocketToolkit
                     throw new ArgumentNullException(nameof(logMessage));
                 if (filePath is null)
                     throw new ArgumentNullException(nameof(filePath));
-                if (WriteLogToCustom)
+                if (WriteToCustom)
                     CustomWrite?.Invoke(logMessage);
-                if (WriteLogToConsole)
+                if (WriteToConsole)
                     Console.Write(logMessage);
-                if (WriteLogToFile)
+                if (WriteToFile)
                     File.AppendAllText(filePath, logMessage);
             }
         }
@@ -219,18 +219,18 @@ namespace MainDen.ClientSocketToolkit
         {
             lock (lSettings)
             {
-                string logMessage = GetLogMessage(sender, dateTime, message);
+                string logMessage = GetMessage(sender, dateTime, message);
                 string filePath = GetFilePath(dateTime);
-                Write(logMessage, filePath);
+                WriteCustom(logMessage, filePath);
             }
         }
         public void Write(Sender sender, DateTime dateTime, string message, string details)
         {
             lock (lSettings)
             {
-                string logMessage = GetLogMessage(sender, dateTime, message, details);
+                string logMessage = GetMessage(sender, dateTime, message, details);
                 string filePath = GetFilePath(dateTime);
-                Write(logMessage, filePath);
+                WriteCustom(logMessage, filePath);
             }
         }
         public void Write(string message, Sender sender = Sender.Log)

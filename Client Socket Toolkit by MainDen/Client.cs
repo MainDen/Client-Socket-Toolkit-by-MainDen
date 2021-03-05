@@ -139,11 +139,25 @@ namespace MainDen.ClientSocketToolkit
                     string[] states = arg as string[];
                     IPAddress[] server;
                     int port;
-                    server = Dns.GetHostAddresses(states[0]);
-                    port = int.Parse(states[1]);
+                    try
+                    {
+                        server = Dns.GetHostAddresses(states[0]);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new FormatException("Invalid server format.", e);
+                    }
+                    try
+                    {
+                        port = int.Parse(states[1]);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new FormatException("Invalid port format.", e);
+                    }
                     Logger?.Write("Connecting to server...");
                     socket.Connect(server, port);
-                    Logger?.Write($"Connected to server ({(socket.RemoteEndPoint as IPEndPoint).Address}).");
+                    Logger?.Write($"Connected to server ({socket.RemoteEndPoint as IPEndPoint}).");
                     Status = ClientStatus.Connected;
                     Receiving.Start();
                 }
@@ -193,7 +207,7 @@ namespace MainDen.ClientSocketToolkit
                     Logger?.Write($"Sending {len} bytes to server...");
                     int sent = socket.Send(data);
                     Logger?.Write($"Sent {sent} bytes to server.");
-                    if (!(socket.Connected))
+                    if (!socket.Connected)
                     {
                         socket.Close();
                         Socket = null;
@@ -228,7 +242,7 @@ namespace MainDen.ClientSocketToolkit
                         DataReceived?.Invoke(data);
                         Thread.Sleep(0);
                     }
-                    if (!(socket.Connected))
+                    if (!socket.Connected)
                     {
                         socket?.Close();
                         Socket = null;
@@ -241,49 +255,48 @@ namespace MainDen.ClientSocketToolkit
         }
         public void ConnectAsync(string server, string port)
         {
-            bool isAvailable;
             lock (lStatus)
             {
-                isAvailable = Status == ClientStatus.Available;
+                bool isAvailable = Status == ClientStatus.Available;
                 if (isAvailable)
+                {
                     Status = ClientStatus.Connecting;
+                    Connecting.Start(new string[] { server, port });
+                }
             }
-            if (!isAvailable)
-                return;
-            Connecting.Start(new string[] { server, port });
         }
         public void DisconnectAsync()
         {
-            bool isConnected;
-            bool isConnecting;
             lock (lStatus)
             {
-                isConnected = Status == ClientStatus.Connected;
-                isConnecting = Status == ClientStatus.Connecting;
+                bool isConnected = Status == ClientStatus.Connected;
+                bool isConnecting = Status == ClientStatus.Connecting;
                 if (isConnected || isConnecting)
+                {
                     Status = ClientStatus.Disconnecting;
+                    Disconnecting.Start();
+                }
             }
-            if (!(isConnected || isConnecting))
-                return;
-            Disconnecting.Start();
         }
         public void SendAsync(byte[] data)
         {
-            bool isConnected = Status == ClientStatus.Connected;
-            if (!isConnected)
-                return;
-            Sending.Start(data);
+            lock (lSettings)
+            {
+                bool isConnected = Status == ClientStatus.Connected;
+                if (isConnected)
+                    Sending.Start(data);
+            }
         }
         public void Reset()
         {
-            Socket?.Close();
-            Socket = null;
-            Status = ClientStatus.Available;
             lock (lSettings)
             {
-                addressFamily = AddressFamily.InterNetwork;
-                socketType = SocketType.Stream;
-                protocolType = ProtocolType.Tcp;
+                Socket?.Close();
+                Socket = null;
+                AddressFamily = AddressFamily.InterNetwork;
+                SocketType = SocketType.Stream;
+                ProtocolType = ProtocolType.Tcp;
+                Status = ClientStatus.Available;
             }
         } 
     }

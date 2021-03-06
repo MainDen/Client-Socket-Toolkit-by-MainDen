@@ -16,23 +16,7 @@ namespace MainDen.ClientSocketToolkit
             Error = 2,
         }
         private readonly object lSettings = new object();
-        private string fileDateTimeFormat = "yyyy-MM-dd";
-        public string FileDateTimeFormat
-        {
-            get
-            {
-                lock (lSettings)
-                    return fileDateTimeFormat;
-            }
-            set
-            {
-                if (value is null)
-                    return;
-                lock (lSettings)
-                    fileDateTimeFormat = value;
-            }
-        }
-        private string filePathFormat = @".\log_{0}.txt";
+        private string filePathFormat = @".\log_{0:yyyy-MM-dd}.txt";
         public string FilePathFormat
         {
             get
@@ -51,25 +35,9 @@ namespace MainDen.ClientSocketToolkit
         public string GetFilePath(DateTime fileDateTime)
         {
             lock (lSettings)
-                return string.Format(filePathFormat, fileDateTime.ToString(fileDateTimeFormat));
+                return string.Format(filePathFormat, fileDateTime);
         }
-        private string messageDateTimeFormat = "yyyy-MM-dd HH:mm:ss";
-        public string MessageDateTimeFormat
-        {
-            get
-            {
-                lock (lSettings)
-                    return messageDateTimeFormat;
-            }
-            set
-            {
-                if (value is null)
-                    return;
-                lock (lSettings)
-                    messageDateTimeFormat = value;
-            }
-        }
-        private string messageFormat = @"\n({0} {1}) {2}\n";
+        private string messageFormat = @"({0} {1:yyyy-MM-dd HH:mm:ss}) {2}\n";
         private string cachedMessageFormat;
         public string MessageFormat
         {
@@ -89,7 +57,7 @@ namespace MainDen.ClientSocketToolkit
                 }
             }
         }
-        private string messageDetailsFormat = @"(Details)\n{3}\n";
+        private string messageDetailsFormat = @"({0} {1:yyyy-MM-dd HH:mm:ss}) {2}\n(Details)\n{3}\n";
         private string cachedMessageDetailsFormat;
         public string MessageDetailsFormat
         {
@@ -117,7 +85,7 @@ namespace MainDen.ClientSocketToolkit
                 cachedMessageDetailsFormat = toMultiLine?.Invoke(messageDetailsFormat) ?? messageDetailsFormat;
             }
         }
-        private Func<string, string> toMultiLine = TextConverter.ToMultiLine;
+        private Func<string, string> toMultiLine = ToMultiLineDefault;
         public Func<string, string> ToMultiLine
         {
             get
@@ -142,17 +110,16 @@ namespace MainDen.ClientSocketToolkit
             return string.Format(
                 cachedMessageFormat ?? "\nMESSAGE FORMAT EXCEPTION\n",
                 sender,
-                dateTime.ToString(messageDateTimeFormat),
+                dateTime,
                 message ?? "NULL");
         }
         public string GetMessage(Sender sender, DateTime dateTime, string message, string details)
         {
             lock (lSettings)
                 return string.Format(
-                    (cachedMessageFormat ?? "\nMESSAGE FORMAT EXCEPTION\n") +
                     (cachedMessageDetailsFormat ?? "\nMESSAGE DETAILS FORMAT EXCEPTION\n"),
                     sender,
-                    dateTime.ToString(messageDateTimeFormat),
+                    dateTime,
                     message ?? "NULL",
                     details ?? "NULL");
         }
@@ -248,6 +215,46 @@ namespace MainDen.ClientSocketToolkit
                 DateTime dateTime = DateTime.Now;
                 Write(sender, dateTime, message, details);
             }
+        }
+        public static readonly object lSettingsDefault = new object();
+        public static Func<string, string> toMultiLineDefault = TextConverter.ToMultiLine;
+        public static Func<string, string> ToMultiLineDefault
+        {
+            get
+            {
+                lock (lSettingsDefault)
+                    return toMultiLineDefault;
+            }
+            set
+            {
+                if (value is null)
+                    return;
+                lock (lSettingsDefault)
+                    toMultiLineDefault = value;
+            }
+        }
+        public static string GetFilePath(string filePathFormat, DateTime fileDateTime)
+        {
+            return string.Format(filePathFormat, fileDateTime);
+        }
+        public static string GetMessage(string messageFormat, Sender sender, DateTime dateTime, string message)
+        {
+            lock (lSettingsDefault)
+                return string.Format(
+                    toMultiLineDefault?.Invoke(messageFormat) ?? messageFormat ?? "\nMESSAGE FORMAT EXCEPTION\n",
+                    sender,
+                    dateTime,
+                    message ?? "NULL");
+        }
+        public static string GetMessage(string messageDetailsFormat, Sender sender, DateTime dateTime, string message, string details)
+        {
+            lock (lSettingsDefault)
+                return string.Format(
+                    (toMultiLineDefault?.Invoke(messageDetailsFormat) ?? messageDetailsFormat ?? "\nMESSAGE DETAILS FORMAT EXCEPTION\n"),
+                    sender,
+                    dateTime,
+                    message ?? "NULL",
+                    details ?? "NULL");
         }
     }
 }

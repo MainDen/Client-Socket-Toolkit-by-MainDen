@@ -305,7 +305,7 @@ namespace MainDen.ClientSocketToolkit
 
         private void EditSettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SettingsForm settings = new SettingsForm(Logger, Client);
+            SettingsForm settings = new SettingsForm(Client, Echo, Logger);
             settings.ShowDialog();
         }
     }

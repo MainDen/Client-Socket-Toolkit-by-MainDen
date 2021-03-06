@@ -9,7 +9,7 @@ namespace MainDen.ClientSocketToolkit
             FormatsCaching();
         }
         private readonly object lSettings = new object();
-        private string messageFormat = @"\n(Echo)\n{0}\n";
+        private string messageFormat = @"{0}\n";
         private string cachedMessageFormat;
         public string MessageFormat
         {
@@ -36,7 +36,7 @@ namespace MainDen.ClientSocketToolkit
                 cachedMessageFormat = toMultiLine?.Invoke(messageFormat) ?? messageFormat;
             }
         }
-        private Func<string, string> toMultiLine = TextConverter.ToMultiLine;
+        private Func<string, string> toMultiLine = ToMultiLineDefault;
         public Func<string, string> ToMultiLine
         {
             get
@@ -110,6 +110,30 @@ namespace MainDen.ClientSocketToolkit
                 string echoMessage = GetMessage(message);
                 WriteCustom(echoMessage);
             }
+        }
+        public static readonly object lSettingsDefault = new object();
+        public static Func<string, string> toMultiLineDefault = TextConverter.ToMultiLine;
+        public static Func<string, string> ToMultiLineDefault
+        {
+            get
+            {
+                lock (lSettingsDefault)
+                    return toMultiLineDefault;
+            }
+            set
+            {
+                if (value is null)
+                    return;
+                lock (lSettingsDefault)
+                    toMultiLineDefault = value;
+            }
+        }
+        public static string GetMessage(string messageFormat, string message)
+        {
+            lock (lSettingsDefault)
+                return string.Format(
+                    toMultiLineDefault?.Invoke(messageFormat) ?? messageFormat ?? "\nMESSAGE FORMAT EXCEPTION\n",
+                    message ?? "NULL");
         }
     }
 }

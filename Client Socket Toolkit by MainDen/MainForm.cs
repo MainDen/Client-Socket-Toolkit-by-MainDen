@@ -58,37 +58,6 @@ namespace MainDen.ClientSocketToolkit
             }
         }
 
-        private void NewToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (MessageBox.Show("App will be reset.", "New", MessageBoxButtons.OKCancel) == DialogResult.OK)
-            {
-                Client.Reset();
-                Reset();
-            }
-        }
-
-        private void Reset()
-        {
-            tbServer.Text = "";
-            tbPort.Text = "";
-            bConnect.Text = "Connect";
-            bProtocolType.Text = "Protocol Type";
-            bAddressFamily.Text = "Address Family";
-            bIncomingEncoding.Text = "Incoming Encoding";
-            tbMessage.Text = "";
-            bSend.Text = "Echo";
-            bOutcomingEncoding.Text = "Outcoming Encoding";
-            rtbLog.Text = "";
-            IncomingEncoding = Encoding.Default;
-            OutcomingEncoding = Encoding.Default;
-        }
-
-        private void CloseToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (MessageBox.Show("App will be closed.", "Close", MessageBoxButtons.OKCancel) == DialogResult.OK)
-                Close();
-        }
-
         private void OnStatusChanged(Client.ClientStatus status)
         {
             if (status == Client.ClientStatus.Available)
@@ -303,10 +272,41 @@ namespace MainDen.ClientSocketToolkit
             Logger?.Write("Command execution is not yet supported.");
         }
 
+        private void NewToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("App will be reset.", "New", MessageBoxButtons.OKCancel) == DialogResult.OK)
+            {
+                Client.Reset();
+                Reset();
+            }
+        }
+
+        private void CloseToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("App will be closed.", "Close", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                Close();
+        }
+
         private void EditSettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SettingsForm settings = new SettingsForm(Client, Echo, Logger);
             settings.ShowDialog();
+        }
+
+        private void Reset()
+        {
+            tbServer.Text = "";
+            tbPort.Text = "";
+            bConnect.Text = "Connect";
+            bProtocolType.Text = "Protocol Type";
+            bAddressFamily.Text = "Address Family";
+            bIncomingEncoding.Text = "Incoming Encoding";
+            tbMessage.Text = "";
+            bSend.Text = "Echo";
+            bOutcomingEncoding.Text = "Outcoming Encoding";
+            rtbLog.Text = "";
+            IncomingEncoding = Encoding.Default;
+            OutcomingEncoding = Encoding.Default;
         }
     }
 }

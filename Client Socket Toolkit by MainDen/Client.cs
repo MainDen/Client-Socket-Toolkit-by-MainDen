@@ -93,6 +93,8 @@ namespace MainDen.ClientSocketToolkit
             }
             set
             {
+                if (value < 1024)
+                    return;
                 lock (lSettings)
                     bufferSize = value;
             }

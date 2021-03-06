@@ -53,7 +53,7 @@ namespace MainDen.ClientSocketToolkit
         }
 
         private Action<byte[]> onDataReceivedAction;
-        
+
         private Action<byte[]> OnDataReceivedAction
         {
             get
@@ -103,7 +103,7 @@ namespace MainDen.ClientSocketToolkit
                     break;
             }
         }
-        
+
         private void OnStatusChangedAsync(Client.ClientStatus status)
         {
             Invoke(OnStatusChangedAction, status);
@@ -132,6 +132,7 @@ namespace MainDen.ClientSocketToolkit
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             Logger?.Write("Application was closed.");
+            Client.Dispose();
         }
 
         private void RTBLog_TextChanged(object sender, EventArgs e)
@@ -364,15 +365,15 @@ namespace MainDen.ClientSocketToolkit
                 XmlDocument document = new XmlDocument();
                 document.Load(filename);
                 XmlElement root = document.GetElementsByTagName("Settings").Item(0) as XmlElement;
-                
+
                 XmlElement client = root.GetElementsByTagName("Client").Item(0) as XmlElement;
                 SetProperty(Client, client, nameof(Client.BufferSize));
-                
+
                 XmlElement echo = root.GetElementsByTagName("Echo").Item(0) as XmlElement;
                 SetProperty(Echo, echo, nameof(Echo.WriteToCustom));
                 SetProperty(Echo, echo, nameof(Echo.WriteToConsole));
                 SetProperty(Echo, echo, nameof(Echo.MessageFormat));
-                
+
                 XmlElement logger = root.GetElementsByTagName("Logger").Item(0) as XmlElement;
                 SetProperty(Logger, logger, nameof(Logger.WriteToCustom));
                 SetProperty(Logger, logger, nameof(Logger.WriteToConsole));

@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace MainDen.ClientSocketToolkit
 {
-    public class Client
+    public class Client : IDisposable
     {
         public Client()
         {
@@ -301,5 +301,9 @@ namespace MainDen.ClientSocketToolkit
                 Status = ClientStatus.Available;
             }
         } 
+        public void Dispose()
+        {
+            Socket?.Close();
+        }
     }
 }

@@ -28,8 +28,13 @@ namespace MainDen.ClientSocketToolkit
             {
                 if (value is null)
                     return;
-                lock (lSettings)
-                    filePathFormat = value;
+                try
+                {
+                    File.Create(GetFilePath(value, DateTime.Now)).Dispose();
+                    lock (lSettings)
+                        filePathFormat = value;
+                }
+                catch { }
             }
         }
         public string GetFilePath(DateTime fileDateTime)
@@ -50,11 +55,16 @@ namespace MainDen.ClientSocketToolkit
             {
                 if (value is null)
                     return;
-                lock (lSettings)
+                try
                 {
-                    messageFormat = value;
-                    cachedMessageFormat = toMultiLine?.Invoke(messageFormat) ?? messageFormat;
+                    GetMessage(value, Sender.Log, DateTime.Now, "Message");
+                    lock (lSettings)
+                    {
+                        messageFormat = value;
+                        cachedMessageFormat = toMultiLine?.Invoke(messageFormat) ?? messageFormat;
+                    }
                 }
+                catch { }
             }
         }
         private string messageDetailsFormat = @"({0} {1:yyyy-MM-dd HH:mm:ss}) {2}\n(Details)\n{3}\n";
@@ -70,11 +80,16 @@ namespace MainDen.ClientSocketToolkit
             {
                 if (value is null)
                     return;
-                lock (lSettings)
+                try
                 {
-                    messageDetailsFormat = value;
-                    cachedMessageDetailsFormat = toMultiLine?.Invoke(messageDetailsFormat) ?? messageDetailsFormat;
+                    GetMessage(value, Sender.Log, DateTime.Now, "Message", "Details");
+                    lock (lSettings)
+                    {
+                        messageDetailsFormat = value;
+                        cachedMessageDetailsFormat = toMultiLine?.Invoke(messageDetailsFormat) ?? messageDetailsFormat;
+                    }
                 }
+                catch { }
             }
         }
         private void FormatsCaching()

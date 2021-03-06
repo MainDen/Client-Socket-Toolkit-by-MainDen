@@ -22,11 +22,16 @@ namespace MainDen.ClientSocketToolkit
             {
                 if (value is null)
                     return;
-                lock (lSettings)
+                try
                 {
-                    messageFormat = value;
-                    cachedMessageFormat = toMultiLine?.Invoke(messageFormat) ?? messageFormat;
+                    GetMessage(value, "Message");
+                    lock (lSettings)
+                    {
+                        messageFormat = value;
+                        cachedMessageFormat = toMultiLine?.Invoke(messageFormat) ?? messageFormat;
+                    }
                 }
+                catch { }
             }
         }
         private void FormatsCaching()

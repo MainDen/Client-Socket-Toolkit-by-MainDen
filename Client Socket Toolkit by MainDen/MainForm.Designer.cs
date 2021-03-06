@@ -51,6 +51,8 @@ namespace MainDen.ClientSocketToolkit
             this.importSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exportSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ofdSettings = new System.Windows.Forms.OpenFileDialog();
+            this.sfdSettings = new System.Windows.Forms.SaveFileDialog();
             this.tlpMain.SuspendLayout();
             this.mMainMenu.SuspendLayout();
             this.SuspendLayout();
@@ -291,12 +293,14 @@ namespace MainDen.ClientSocketToolkit
             this.importSettingsToolStripMenuItem.Name = "importSettingsToolStripMenuItem";
             this.importSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.importSettingsToolStripMenuItem.Text = "Import Settings";
+            this.importSettingsToolStripMenuItem.Click += new System.EventHandler(this.ImportSettingsToolStripMenuItem_Click);
             // 
             // exportSettingsToolStripMenuItem
             // 
             this.exportSettingsToolStripMenuItem.Name = "exportSettingsToolStripMenuItem";
             this.exportSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exportSettingsToolStripMenuItem.Text = "Export Settings";
+            this.exportSettingsToolStripMenuItem.Click += new System.EventHandler(this.ExportSettingsToolStripMenuItem_Click);
             // 
             // editSettingsToolStripMenuItem
             // 
@@ -304,6 +308,18 @@ namespace MainDen.ClientSocketToolkit
             this.editSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.editSettingsToolStripMenuItem.Text = "Edit Settings";
             this.editSettingsToolStripMenuItem.Click += new System.EventHandler(this.EditSettingsToolStripMenuItem_Click);
+            // 
+            // ofdSettings
+            // 
+            this.ofdSettings.FileName = "settings.xml";
+            this.ofdSettings.Filter = "\"Settings files (*.xml)|*.xml|All files (*.*)|*.*\";";
+            this.ofdSettings.InitialDirectory = ".";
+            // 
+            // sfdSettings
+            // 
+            this.sfdSettings.FileName = "settings.xml";
+            this.sfdSettings.Filter = "\"Settings files (*.xml)|*.xml|All files (*.*)|*.*\";";
+            this.sfdSettings.InitialDirectory = ".";
             // 
             // MainForm
             // 
@@ -351,6 +367,8 @@ namespace MainDen.ClientSocketToolkit
         private System.Windows.Forms.ToolStripMenuItem importSettingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exportSettingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem editSettingsToolStripMenuItem;
+        private System.Windows.Forms.OpenFileDialog ofdSettings;
+        private System.Windows.Forms.SaveFileDialog sfdSettings;
     }
 }
 

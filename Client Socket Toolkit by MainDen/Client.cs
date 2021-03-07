@@ -303,7 +303,8 @@ namespace MainDen.ClientSocketToolkit
         } 
         public void Dispose()
         {
-            Socket?.Close();
+            lock (lSettings)
+                Socket?.Close();
         }
     }
 }

@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="XmlPorter.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="Echo.cs" />
     <Compile Include="SettingsForm.cs">

@@ -111,7 +111,7 @@ namespace MainDen.ClientSocketToolkit
 
         private void OnDataReceived(byte[] data)
         {
-            rtbLog.Text += IncomingEncoding.GetString(data);
+            rtbLog.Text += IncomingEncoding.GetString(data) + '\n';
         }
 
         private void OnDataReceivedAsync(byte[] data)
@@ -302,6 +302,7 @@ namespace MainDen.ClientSocketToolkit
         {
             if (ofdSettings.ShowDialog() != DialogResult.OK)
                 return;
+
             XmlAsSettings(ofdSettings.FileName);
             try
             {
@@ -362,87 +363,46 @@ namespace MainDen.ClientSocketToolkit
         {
             try
             {
-                XmlDocument document = new XmlDocument();
-                document.Load(filename);
-                XmlElement root = document.GetElementsByTagName("Settings").Item(0) as XmlElement;
-
-                XmlElement client = root.GetElementsByTagName("Client").Item(0) as XmlElement;
-                SetProperty(Client, client, nameof(Client.BufferSize));
-
-                XmlElement echo = root.GetElementsByTagName("Echo").Item(0) as XmlElement;
-                SetProperty(Echo, echo, nameof(Echo.WriteToCustom));
-                SetProperty(Echo, echo, nameof(Echo.WriteToConsole));
-                SetProperty(Echo, echo, nameof(Echo.MessageFormat));
-
-                XmlElement logger = root.GetElementsByTagName("Logger").Item(0) as XmlElement;
-                SetProperty(Logger, logger, nameof(Logger.WriteToCustom));
-                SetProperty(Logger, logger, nameof(Logger.WriteToConsole));
-                SetProperty(Logger, logger, nameof(Logger.WriteToFile));
-                SetProperty(Logger, logger, nameof(Logger.FilePathFormat));
-                SetProperty(Logger, logger, nameof(Logger.MessageFormat));
-                SetProperty(Logger, logger, nameof(Logger.MessageDetailsFormat));
+                XmlPorter porter = new XmlPorter();
+                porter.Document.Load(filename);
+                porter.Set("/Settings/Client", Client, nameof(Client.BufferSize));
+                porter.Set("/Settings/Echo", Echo,
+                    nameof(Echo.WriteToCustom),
+                    nameof(Echo.WriteToConsole),
+                    nameof(Echo.MessageFormat));
+                porter.Set("/Settings/Logger", Logger,
+                    nameof(Logger.WriteToCustom),
+                    nameof(Logger.WriteToConsole),
+                    nameof(Logger.WriteToFile),
+                    nameof(Logger.FilePathFormat),
+                    nameof(Logger.MessageFormat),
+                    nameof(Logger.MessageDetailsFormat));
             }
             catch { }
         }
 
         private XmlDocument SettingsAsXml()
         {
-            XmlDocument document = new XmlDocument();
-            XmlElement root = document.CreateElement("Settings");
-            document.AppendChild(root);
+            XmlPorter porter = new XmlPorter();
+            XmlNode root = porter.Document.AppendChild(porter.Add("Settings"));
 
-            XmlElement client = AppendChild(document, root, nameof(Client));
-            AppendChild(document, client, nameof(Client.BufferSize), Client.BufferSize);
+            root.AppendChild(porter.Add("Client", Client,
+                nameof(Client.BufferSize)));
 
-            XmlElement echo = AppendChild(document, root, nameof(Echo));
-            AppendChild(document, echo, nameof(Echo.WriteToCustom), Echo.WriteToCustom);
-            AppendChild(document, echo, nameof(Echo.WriteToConsole), Echo.WriteToConsole);
-            AppendChild(document, echo, nameof(Echo.MessageFormat), Echo.MessageFormat);
+            root.AppendChild(porter.Add("Echo", Echo,
+                nameof(Echo.WriteToCustom),
+                nameof(Echo.WriteToConsole),
+                nameof(Echo.MessageFormat)));
 
-            XmlElement logger = AppendChild(document, root, nameof(Logger));
-            AppendChild(document, logger, nameof(Logger.WriteToCustom), Logger.WriteToCustom);
-            AppendChild(document, logger, nameof(Logger.WriteToConsole), Logger.WriteToConsole);
-            AppendChild(document, logger, nameof(Logger.WriteToFile), Logger.WriteToFile);
-            AppendChild(document, logger, nameof(Logger.FilePathFormat), Logger.FilePathFormat);
-            AppendChild(document, logger, nameof(Logger.MessageFormat), Logger.MessageFormat);
-            AppendChild(document, logger, nameof(Logger.MessageDetailsFormat), Logger.MessageDetailsFormat);
+            root.AppendChild(porter.Add("Logger", Logger,
+                nameof(Logger.WriteToCustom),
+                nameof(Logger.WriteToConsole),
+                nameof(Logger.WriteToFile),
+                nameof(Logger.FilePathFormat),
+                nameof(Logger.MessageFormat),
+                nameof(Logger.MessageDetailsFormat)));
 
-            return document;
-        }
-
-        private void SetProperty(object instance, XmlElement instanceXml, string propertyName)
-        {
-            try
-            {
-                XmlNode propertyXml = instanceXml.GetElementsByTagName(propertyName).Item(0);
-                Type instanceType = instance.GetType();
-                PropertyInfo propertyInfo = instanceType.GetProperty(propertyName);
-                Type propertyType = propertyInfo.PropertyType;
-                MethodInfo propertyParseInfo = propertyType.GetMethod(
-                    "Parse", BindingFlags.Public | BindingFlags.Static,
-                    null, new Type[] { typeof(string) }, null);
-                propertyInfo.SetValue(instance, propertyParseInfo?.Invoke(null,
-                    new object[] { propertyXml.InnerText }) ?? propertyXml.InnerText, null);
-            }
-            catch { }
-        }
-
-        private XmlElement AppendChild(XmlDocument document, XmlElement parent, string childName, object childValue = null)
-        {
-            if (document is null)
-                throw new ArgumentNullException(nameof(document));
-            if (parent is null)
-                throw new ArgumentNullException(nameof(parent));
-            if (childName is null)
-                throw new ArgumentNullException(nameof(childName));
-            XmlElement child = document.CreateElement(childName);
-            parent.AppendChild(child);
-            if (!(childValue is null))
-            {
-                child.SetAttribute("type", childValue.GetType().FullName);
-                child.InnerText = childValue.ToString();
-            }
-            return child;
+            return porter.Document;
         }
     }
 }

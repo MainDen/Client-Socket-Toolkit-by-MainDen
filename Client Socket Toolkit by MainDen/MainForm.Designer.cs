@@ -291,34 +291,34 @@ namespace MainDen.ClientSocketToolkit
             // importSettingsToolStripMenuItem
             // 
             this.importSettingsToolStripMenuItem.Name = "importSettingsToolStripMenuItem";
-            this.importSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.importSettingsToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
             this.importSettingsToolStripMenuItem.Text = "Import Settings";
             this.importSettingsToolStripMenuItem.Click += new System.EventHandler(this.ImportSettingsToolStripMenuItem_Click);
             // 
             // exportSettingsToolStripMenuItem
             // 
             this.exportSettingsToolStripMenuItem.Name = "exportSettingsToolStripMenuItem";
-            this.exportSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exportSettingsToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
             this.exportSettingsToolStripMenuItem.Text = "Export Settings";
             this.exportSettingsToolStripMenuItem.Click += new System.EventHandler(this.ExportSettingsToolStripMenuItem_Click);
             // 
             // editSettingsToolStripMenuItem
             // 
             this.editSettingsToolStripMenuItem.Name = "editSettingsToolStripMenuItem";
-            this.editSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.editSettingsToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
             this.editSettingsToolStripMenuItem.Text = "Edit Settings";
             this.editSettingsToolStripMenuItem.Click += new System.EventHandler(this.EditSettingsToolStripMenuItem_Click);
             // 
             // ofdSettings
             // 
             this.ofdSettings.FileName = "settings.xml";
-            this.ofdSettings.Filter = "\"Settings files (*.xml)|*.xml|All files (*.*)|*.*\";";
+            this.ofdSettings.Filter = "Settings files (*.xml)|*.xml|All files (*.*)|*.*";
             this.ofdSettings.InitialDirectory = ".";
             // 
             // sfdSettings
             // 
             this.sfdSettings.FileName = "settings.xml";
-            this.sfdSettings.Filter = "\"Settings files (*.xml)|*.xml|All files (*.*)|*.*\";";
+            this.sfdSettings.Filter = "Settings files (*.xml)|*.xml|All files (*.*)|*.*";
             this.sfdSettings.InitialDirectory = ".";
             // 
             // MainForm

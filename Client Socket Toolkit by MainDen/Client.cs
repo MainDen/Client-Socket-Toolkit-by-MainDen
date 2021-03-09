@@ -7,6 +7,7 @@ namespace MainDen.ClientSocketToolkit
 {
     public class Client : IDisposable
     {
+        private static readonly int MinBufferSize = 256;
         public Client()
         {
             status = ClientStatus.Available;
@@ -93,7 +94,7 @@ namespace MainDen.ClientSocketToolkit
             }
             set
             {
-                if (value < 1024)
+                if (value < MinBufferSize)
                     return;
                 lock (lSettings)
                     bufferSize = value;
@@ -161,7 +162,6 @@ namespace MainDen.ClientSocketToolkit
                     socket.Connect(server, port);
                     Logger?.Write($"Connected to server ({socket.RemoteEndPoint as IPEndPoint}).");
                     Status = ClientStatus.Connected;
-                    Receiving.Start();
                 }
                 catch (ObjectDisposedException) { }
                 catch (Exception e)
@@ -171,6 +171,7 @@ namespace MainDen.ClientSocketToolkit
                     Socket = null;
                     Status = ClientStatus.Available;
                 }
+
             });
         }
         private Thread Disconnecting
@@ -216,6 +217,8 @@ namespace MainDen.ClientSocketToolkit
                         Logger?.Write($"Server closed the connection.");
                         Status = ClientStatus.Available;
                     }
+                    else
+                        Receiving.Start();
                 }
                 catch (ObjectDisposedException) { }
                 catch (Exception e)
@@ -226,33 +229,58 @@ namespace MainDen.ClientSocketToolkit
         }
         private Thread Receiving
         {
-            get => new Thread(() => {
-                Socket socket = null;
+            get => new Thread(() =>
+            {
                 try
                 {
-                    socket = Socket;
-                    while (socket.Connected)
+                    Socket client = Socket;
+                    int dataSize = 0;
+                    byte[] data = new byte[0];
+                    while (client.Connected)
                     {
                         byte[] buffer = new byte[BufferSize];
-                        int len = socket.Receive(buffer);
-                        if (len == 0)
-                            continue;
-                        byte[] data = new byte[len];
-                        for (int i = 0; i < len; ++i)
-                            data[i] = buffer[i];
-                        Logger?.Write($"Received {len} bytes from server.");
-                        DataReceived?.Invoke(data);
-                        Thread.Sleep(0);
-                    }
-                    if (!socket.Connected)
-                    {
-                        socket?.Close();
-                        Socket = null;
-                        Logger?.Write($"Server closed the connection.");
-                        Status = ClientStatus.Available;
+                        int dataReceivedSize = 0;
+                        Timer timer = null;
+                        try
+                        {
+                            timer = new Timer(state =>
+                            {
+                                Logger?.Write("Timer tick!");
+                            }, null, 1000, 1000);
+                            dataReceivedSize = client.Receive(buffer);
+                            if (dataReceivedSize > 0)
+                            {
+                                int tempSize = dataSize;
+                                byte[] temp = data;
+                                dataSize = tempSize + dataReceivedSize;
+                                data = new byte[dataSize];
+                                Buffer.BlockCopy(temp, 0, data, 0, tempSize);
+                                Buffer.BlockCopy(buffer, 0, data, tempSize, dataReceivedSize);
+                            }
+                            else if (dataSize > 0)
+                                throw new SocketException();
+                        }
+                        catch (SocketException)
+                        {
+                            if (dataSize > 0)
+                            {
+                                Logger?.Write($"Received {dataSize} bytes from server.");
+                                DataReceived?.Invoke(data);
+                                dataSize = 0;
+                                data = new byte[0];
+                            }
+                        }
+                        finally
+                        {
+                            timer?.Dispose();
+                        }
                     }
                 }
-                catch (Exception) { }
+                catch (ObjectDisposedException) { }
+                catch (Exception e)
+                {
+                    Logger?.Write(e.Message, Logger.Sender.Error);
+                }
             });
         }
         public void ConnectAsync(string server, string port)

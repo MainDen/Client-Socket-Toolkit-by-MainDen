@@ -1,7 +1,6 @@
 ﻿using Extension.Text;
 using System;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
@@ -41,12 +40,6 @@ namespace MainDen.ClientSocketToolkit
 
         Encoding OutcomingEncoding = Encoding.Default;
 
-        private bool newReceive = true;
-
-        private HttpPresenter presenter = new HttpPresenter();
-
-        private StringBuilder reseivedData = new StringBuilder();
-
         private Action<Client.ClientStatus> onStatusChangedAction;
 
         private Action<Client.ClientStatus> OnStatusChangedAction
@@ -77,7 +70,6 @@ namespace MainDen.ClientSocketToolkit
                 bAddressFamily.Enabled = true;
                 tbServer.Enabled = true;
                 tbPort.Enabled = true;
-                newReceive = true;
             }
             else
             {
@@ -85,7 +77,6 @@ namespace MainDen.ClientSocketToolkit
                 bAddressFamily.Enabled = false;
                 tbServer.Enabled = false;
                 tbPort.Enabled = false;
-                newReceive = false;
             }
             switch (status)
             {
@@ -119,28 +110,7 @@ namespace MainDen.ClientSocketToolkit
 
         private void OnDataReceived(byte[] data)
         {
-            if (newReceive)
-            {
-                presenter = new HttpPresenter();
-                reseivedData = new StringBuilder();
-            }
-            reseivedData.Append(IncomingEncoding.GetString(data));
-            string text = reseivedData.ToString();
-            if (text.StartsWith("HTTP"))
-            {
-                string[] strs = System.Text.RegularExpressions.Regex.Split(text, @"\r\n\r\n|\r\r|\n\n");
-                if (strs.Length > 1)
-                {
-                    presenter.rtbHTTPHeaders.Text = strs[0];
-                    presenter.rtbContent.Text = string.Join("\n\n", strs, 1, strs.Length - 1);
-                }
-                else
-                {
-                    presenter.rtbHTTPHeaders.Text = "";
-                    presenter.rtbContent.Text = text;
-                }
-                presenter.Show();
-            }
+            new HttpPresenter(IncomingEncoding.GetString(data)).Show();
         }
 
         private void OnDataReceivedAsync(byte[] data)
@@ -296,7 +266,6 @@ namespace MainDen.ClientSocketToolkit
             switch (bSend.Text)
             {
                 case "Send":
-                    newReceive = true;
                     Client.SendAsync(OutcomingEncoding.GetBytes(tbMessage.Text));
                     break;
                 case "Echo":

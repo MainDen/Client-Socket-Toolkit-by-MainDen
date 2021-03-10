@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
 namespace MainDen.ClientSocketToolkit
 {
@@ -20,6 +13,11 @@ namespace MainDen.ClientSocketToolkit
             {
                 rtbHTTPHeaders.Text = parts[0];
                 rtbContent.Text = string.Join("\n\n", parts, 1, length - 1);
+                if (rtbContent.Text.Length == 0)
+                {
+                    lContent.Visible = false;
+                    rtbContent.Visible = false;
+                }
             }
             else
             {

@@ -8,6 +8,7 @@ namespace MainDen.ClientSocketToolkit
     public class Client : IDisposable
     {
         private static readonly int MinBufferSize = 256;
+        private static readonly int MinReceiveTimeout = 0;
         public Client()
         {
             status = ClientStatus.Available;
@@ -15,6 +16,7 @@ namespace MainDen.ClientSocketToolkit
             socketType = SocketType.Stream;
             protocolType = ProtocolType.Tcp;
             bufferSize = 1024;
+            receiveTimeout = 100;
         }
         private readonly object lStatus = new object();
         public enum ClientStatus
@@ -100,6 +102,22 @@ namespace MainDen.ClientSocketToolkit
                     bufferSize = value;
             }
         }
+        private int receiveTimeout;
+        public int ReceiveTimeout
+        {
+            get
+            {
+                lock (lSettings)
+                    return receiveTimeout;
+            }
+            set
+            {
+                if (value < MinReceiveTimeout)
+                    return;
+                lock (lSettings)
+                    receiveTimeout = value;
+            }
+        }
         private Socket socket;
         private Socket Socket
         {
@@ -162,6 +180,7 @@ namespace MainDen.ClientSocketToolkit
                     socket.Connect(server, port);
                     Logger?.Write($"Connected to server ({socket.RemoteEndPoint as IPEndPoint}).");
                     Status = ClientStatus.Connected;
+                    Receiving.Start();
                 }
                 catch (ObjectDisposedException) { }
                 catch (Exception e)
@@ -217,8 +236,6 @@ namespace MainDen.ClientSocketToolkit
                         Logger?.Write($"Server closed the connection.");
                         Status = ClientStatus.Available;
                     }
-                    else
-                        Receiving.Start();
                 }
                 catch (ObjectDisposedException) { }
                 catch (Exception e)
@@ -231,23 +248,22 @@ namespace MainDen.ClientSocketToolkit
         {
             get => new Thread(() =>
             {
+                NetworkStream clientStream = null;
                 try
                 {
                     Socket client = Socket;
                     int dataSize = 0;
                     byte[] data = new byte[0];
+                    clientStream = new NetworkStream(client);
+                    DateTime lastReceive = DateTime.Now;
                     while (client.Connected)
                     {
-                        byte[] buffer = new byte[BufferSize];
-                        int dataReceivedSize = 0;
-                        Timer timer = null;
-                        try
+                        if (clientStream.DataAvailable)
                         {
-                            timer = new Timer(state =>
-                            {
-                                Logger?.Write("Timer tick!");
-                            }, null, 1000, 1000);
-                            dataReceivedSize = client.Receive(buffer);
+                            int bufferSize = BufferSize;
+                            byte[] buffer = new byte[bufferSize];
+                            int dataReceivedSize = clientStream.Read(buffer, 0, bufferSize);
+                            lastReceive = DateTime.Now;
                             if (dataReceivedSize > 0)
                             {
                                 int tempSize = dataSize;
@@ -257,22 +273,17 @@ namespace MainDen.ClientSocketToolkit
                                 Buffer.BlockCopy(temp, 0, data, 0, tempSize);
                                 Buffer.BlockCopy(buffer, 0, data, tempSize, dataReceivedSize);
                             }
-                            else if (dataSize > 0)
-                                throw new SocketException();
                         }
-                        catch (SocketException)
+                        else
                         {
-                            if (dataSize > 0)
+                            if (dataSize > 0 && (DateTime.Now - lastReceive).TotalMilliseconds >= ReceiveTimeout)
                             {
                                 Logger?.Write($"Received {dataSize} bytes from server.");
                                 DataReceived?.Invoke(data);
                                 dataSize = 0;
                                 data = new byte[0];
                             }
-                        }
-                        finally
-                        {
-                            timer?.Dispose();
+                            Thread.Sleep(ReceiveTimeout + 1);
                         }
                     }
                 }
@@ -280,6 +291,10 @@ namespace MainDen.ClientSocketToolkit
                 catch (Exception e)
                 {
                     Logger?.Write(e.Message, Logger.Sender.Error);
+                }
+                finally
+                {
+                    clientStream?.Close();
                 }
             });
         }
@@ -321,18 +336,21 @@ namespace MainDen.ClientSocketToolkit
         {
             lock (lSettings)
             {
-                Socket?.Close();
-                Socket = null;
-                AddressFamily = AddressFamily.InterNetwork;
-                SocketType = SocketType.Stream;
-                ProtocolType = ProtocolType.Tcp;
-                Status = ClientStatus.Available;
+                socket?.Close();
+                socket = null;
+                addressFamily = AddressFamily.InterNetwork;
+                socketType = SocketType.Stream;
+                protocolType = ProtocolType.Tcp;
+                status = ClientStatus.Available;
             }
         } 
         public void Dispose()
         {
             lock (lSettings)
-                Socket?.Close();
+            {
+                socket?.Close();
+                socket = null;
+            }
         }
     }
 }

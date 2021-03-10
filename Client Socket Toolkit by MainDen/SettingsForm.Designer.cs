@@ -31,6 +31,8 @@ namespace MainDen.ClientSocketToolkit
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsForm));
             this.tlpSettings = new System.Windows.Forms.TableLayoutPanel();
+            this.nudCReceiveTimeout = new System.Windows.Forms.NumericUpDown();
+            this.lCRT = new System.Windows.Forms.Label();
             this.lLFilePathR = new System.Windows.Forms.Label();
             this.bCancel = new System.Windows.Forms.Button();
             this.cbLWTScreen = new System.Windows.Forms.CheckBox();
@@ -55,6 +57,7 @@ namespace MainDen.ClientSocketToolkit
             this.rtbSampleOutput = new System.Windows.Forms.RichTextBox();
             this.cbLWTFile = new System.Windows.Forms.CheckBox();
             this.tlpSettings.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudCReceiveTimeout)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCBufferSize)).BeginInit();
             this.SuspendLayout();
             // 
@@ -63,6 +66,8 @@ namespace MainDen.ClientSocketToolkit
             this.tlpSettings.ColumnCount = 2;
             this.tlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 37.5F));
             this.tlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 62.5F));
+            this.tlpSettings.Controls.Add(this.nudCReceiveTimeout, 0, 16);
+            this.tlpSettings.Controls.Add(this.lCRT, 0, 15);
             this.tlpSettings.Controls.Add(this.lLFilePathR, 1, 1);
             this.tlpSettings.Controls.Add(this.bCancel, 1, 19);
             this.tlpSettings.Controls.Add(this.cbLWTScreen, 0, 8);
@@ -89,7 +94,7 @@ namespace MainDen.ClientSocketToolkit
             this.tlpSettings.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlpSettings.Location = new System.Drawing.Point(0, 0);
             this.tlpSettings.Name = "tlpSettings";
-            this.tlpSettings.RowCount = 19;
+            this.tlpSettings.RowCount = 20;
             this.tlpSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlpSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlpSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -110,8 +115,41 @@ namespace MainDen.ClientSocketToolkit
             this.tlpSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlpSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlpSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tlpSettings.Size = new System.Drawing.Size(624, 381);
+            this.tlpSettings.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tlpSettings.Size = new System.Drawing.Size(624, 428);
             this.tlpSettings.TabIndex = 0;
+            // 
+            // nudCReceiveTimeout
+            // 
+            this.nudCReceiveTimeout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.nudCReceiveTimeout.Location = new System.Drawing.Point(3, 350);
+            this.nudCReceiveTimeout.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.nudCReceiveTimeout.Name = "nudCReceiveTimeout";
+            this.nudCReceiveTimeout.Size = new System.Drawing.Size(228, 20);
+            this.nudCReceiveTimeout.TabIndex = 33;
+            this.nudCReceiveTimeout.Tag = "bytes";
+            this.nudCReceiveTimeout.Value = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            this.nudCReceiveTimeout.ValueChanged += new System.EventHandler(this.NUDCReceiveTimeout_ValueChanged);
+            // 
+            // lCRT
+            // 
+            this.lCRT.AutoSize = true;
+            this.lCRT.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lCRT.Location = new System.Drawing.Point(3, 331);
+            this.lCRT.Margin = new System.Windows.Forms.Padding(3);
+            this.lCRT.Name = "lCRT";
+            this.lCRT.Padding = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lCRT.Size = new System.Drawing.Size(228, 13);
+            this.lCRT.TabIndex = 32;
+            this.lCRT.Text = "Receive timeout:";
             // 
             // lLFilePathR
             // 
@@ -128,7 +166,7 @@ namespace MainDen.ClientSocketToolkit
             // bCancel
             // 
             this.bCancel.Dock = System.Windows.Forms.DockStyle.Top;
-            this.bCancel.Location = new System.Drawing.Point(237, 357);
+            this.bCancel.Location = new System.Drawing.Point(237, 404);
             this.bCancel.Name = "bCancel";
             this.bCancel.Padding = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.bCancel.Size = new System.Drawing.Size(384, 21);
@@ -198,7 +236,7 @@ namespace MainDen.ClientSocketToolkit
             // bOK
             // 
             this.bOK.Dock = System.Windows.Forms.DockStyle.Top;
-            this.bOK.Location = new System.Drawing.Point(237, 330);
+            this.bOK.Location = new System.Drawing.Point(237, 377);
             this.bOK.Name = "bOK";
             this.bOK.Padding = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.bOK.Size = new System.Drawing.Size(384, 21);
@@ -210,7 +248,7 @@ namespace MainDen.ClientSocketToolkit
             // bReset
             // 
             this.bReset.Dock = System.Windows.Forms.DockStyle.Top;
-            this.bReset.Location = new System.Drawing.Point(3, 357);
+            this.bReset.Location = new System.Drawing.Point(3, 404);
             this.bReset.Name = "bReset";
             this.bReset.Padding = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.bReset.Size = new System.Drawing.Size(228, 21);
@@ -361,7 +399,7 @@ namespace MainDen.ClientSocketToolkit
             // bApply
             // 
             this.bApply.Dock = System.Windows.Forms.DockStyle.Top;
-            this.bApply.Location = new System.Drawing.Point(3, 330);
+            this.bApply.Location = new System.Drawing.Point(3, 377);
             this.bApply.Name = "bApply";
             this.bApply.Padding = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.bApply.Size = new System.Drawing.Size(228, 21);
@@ -402,12 +440,12 @@ namespace MainDen.ClientSocketToolkit
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(624, 381);
+            this.ClientSize = new System.Drawing.Size(624, 428);
             this.Controls.Add(this.tlpSettings);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(420, 420);
+            this.MinimumSize = new System.Drawing.Size(420, 467);
             this.Name = "SettingsForm";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
@@ -415,6 +453,7 @@ namespace MainDen.ClientSocketToolkit
             this.Load += new System.EventHandler(this.SettingsForm_Load);
             this.tlpSettings.ResumeLayout(false);
             this.tlpSettings.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudCReceiveTimeout)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCBufferSize)).EndInit();
             this.ResumeLayout(false);
 
@@ -446,5 +485,7 @@ namespace MainDen.ClientSocketToolkit
         private System.Windows.Forms.Label lLFilePathR;
         private System.Windows.Forms.Button bCancel;
         private System.Windows.Forms.Button bReset;
+        private System.Windows.Forms.NumericUpDown nudCReceiveTimeout;
+        private System.Windows.Forms.Label lCRT;
     }
 }

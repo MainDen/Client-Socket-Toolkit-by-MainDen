@@ -45,12 +45,15 @@ namespace MainDen.ClientSocketToolkit
 
             foreach (var propertyName in propertyNames)
             {
+                try
+                {
                 if (propertyName is null)
                     throw new ArgumentException("Property name must not be null.");
                 propertyInfo = sourceType.GetProperty(propertyName);
                 propertyValue = propertyInfo?.GetValue(source, null);
                 xmlProperty = Add(propertyName, propertyValue);
                 xmlSource.AppendChild(xmlProperty);
+                } catch { }
             }
 
             return xmlSource;
@@ -73,14 +76,17 @@ namespace MainDen.ClientSocketToolkit
 
             foreach (var propertyName in propertyNames)
             {
-                if (propertyName is null)
-                    throw new ArgumentException("Property name must not be null.");
-                propertyInfo = sourceType.GetProperty(propertyName);
-                xmlProperty = xmlSource.SelectSingleNode(propertyName);
-                parseInfo = propertyInfo.PropertyType.GetMethod("Parse", BindingFlags.Public |
-                    BindingFlags.Static, null, new Type[] { typeof(string) }, null);
-                propertyValue = parseInfo?.Invoke(null, new object[] { xmlProperty.InnerText }) ?? xmlProperty.InnerText;
-                propertyInfo.SetValue(source, propertyValue, null);
+                try
+                {
+                    if (propertyName is null)
+                        throw new ArgumentException("Property name must not be null.");
+                    propertyInfo = sourceType.GetProperty(propertyName);
+                    xmlProperty = xmlSource.SelectSingleNode(propertyName);
+                    parseInfo = propertyInfo.PropertyType.GetMethod("Parse", BindingFlags.Public |
+                        BindingFlags.Static, null, new Type[] { typeof(string) }, null);
+                    propertyValue = parseInfo?.Invoke(null, new object[] { xmlProperty.InnerText }) ?? xmlProperty.InnerText;
+                    propertyInfo.SetValue(source, propertyValue, null);
+                } catch { }
             }
         }
     }

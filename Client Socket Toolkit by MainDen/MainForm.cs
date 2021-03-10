@@ -110,7 +110,16 @@ namespace MainDen.ClientSocketToolkit
 
         private void OnDataReceived(byte[] data)
         {
-            new HttpPresenter(IncomingEncoding.GetString(data)).Show();
+            Encoding InEnc = IncomingEncoding;
+            string text = InEnc.GetString(data);
+            if (InEnc == Hexadecimal.HASCII)
+                new ContentPresenter(text, "HASCII", System.Drawing.FontFamily.GenericMonospace).Show();
+            else if (InEnc == Hexadecimal.Hex)
+                new ContentPresenter(text, "HEX", System.Drawing.FontFamily.GenericMonospace).Show();
+            else if (text.StartsWith("HTTP/"))
+                new HttpPresenter(text).Show();
+            else
+                new ContentPresenter(text).Show();
         }
 
         private void OnDataReceivedAsync(byte[] data)
@@ -302,7 +311,14 @@ namespace MainDen.ClientSocketToolkit
             if (ofdSettings.ShowDialog() != DialogResult.OK)
                 return;
 
-            XmlAsSettings(ofdSettings.FileName);
+            try
+            {
+                XmlAsSettings(ofdSettings.FileName);
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(exc?.Message ?? "Unexpected error.", "Error");
+            }
             try
             {
                 SettingsAsXml().Save("settings.xml");
@@ -360,24 +376,22 @@ namespace MainDen.ClientSocketToolkit
 
         private void XmlAsSettings(string filename)
         {
-            try
-            {
-                XmlPorter porter = new XmlPorter();
-                porter.Document.Load(filename);
-                porter.Set("/Settings/Client", Client, nameof(Client.BufferSize));
-                porter.Set("/Settings/Echo", Echo,
-                    nameof(Echo.WriteToCustom),
-                    nameof(Echo.WriteToConsole),
-                    nameof(Echo.MessageFormat));
-                porter.Set("/Settings/Logger", Logger,
-                    nameof(Logger.WriteToCustom),
-                    nameof(Logger.WriteToConsole),
-                    nameof(Logger.WriteToFile),
-                    nameof(Logger.FilePathFormat),
-                    nameof(Logger.MessageFormat),
-                    nameof(Logger.MessageDetailsFormat));
-            }
-            catch { }
+            XmlPorter porter = new XmlPorter();
+            porter.Document.Load(filename);
+            porter.Set("/Settings/Client", Client,
+                nameof(Client.BufferSize),
+                nameof(Client.ReceiveTimeout));
+            porter.Set("/Settings/Echo", Echo,
+                nameof(Echo.WriteToCustom),
+                nameof(Echo.WriteToConsole),
+                nameof(Echo.MessageFormat));
+            porter.Set("/Settings/Logger", Logger,
+                nameof(Logger.WriteToCustom),
+                nameof(Logger.WriteToConsole),
+                nameof(Logger.WriteToFile),
+                nameof(Logger.FilePathFormat),
+                nameof(Logger.MessageFormat),
+                nameof(Logger.MessageDetailsFormat));
         }
 
         private XmlDocument SettingsAsXml()
@@ -386,7 +400,8 @@ namespace MainDen.ClientSocketToolkit
             XmlNode root = porter.Document.AppendChild(porter.Add("Settings"));
 
             root.AppendChild(porter.Add("Client", Client,
-                nameof(Client.BufferSize)));
+                nameof(Client.BufferSize),
+                nameof(Client.ReceiveTimeout)));
 
             root.AppendChild(porter.Add("Echo", Echo,
                 nameof(Echo.WriteToCustom),

@@ -119,6 +119,16 @@ namespace MainDen.ClientSocketToolkit
                 applied = false;
                 nudCBufferSize.BackColor = Color.Red;
             }
+            try
+            {
+                Client.ReceiveTimeout = (int)nudCReceiveTimeout.Value;
+                nudCReceiveTimeout.BackColor = Color.Lime;
+            }
+            catch
+            {
+                applied = false;
+                nudCReceiveTimeout.BackColor = Color.Red;
+            }
             return applied;
         }
 
@@ -138,6 +148,8 @@ namespace MainDen.ClientSocketToolkit
             tbEMessageF.BackColor = Color.Lime;
             nudCBufferSize.Value = Client.BufferSize;
             nudCBufferSize.BackColor = Color.Lime;
+            nudCReceiveTimeout.Value = Client.ReceiveTimeout;
+            nudCReceiveTimeout.BackColor = Color.Lime;
         }
 
         private Client Client;
@@ -304,6 +316,17 @@ namespace MainDen.ClientSocketToolkit
             if (control is null)
                 return;
             if (control.Value == Client.BufferSize)
+                control.BackColor = Color.Lime;
+            else
+                control.BackColor = DefaultBackColor;
+        }
+
+        private void NUDCReceiveTimeout_ValueChanged(object sender, EventArgs e)
+        {
+            NumericUpDown control = sender as NumericUpDown;
+            if (control is null)
+                return;
+            if (control.Value == Client.ReceiveTimeout)
                 control.BackColor = Color.Lime;
             else
                 control.BackColor = DefaultBackColor;

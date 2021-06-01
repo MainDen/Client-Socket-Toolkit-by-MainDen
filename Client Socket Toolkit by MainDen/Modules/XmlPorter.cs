@@ -47,23 +47,24 @@ namespace MainDen.ClientSocketToolkit
             {
                 try
                 {
-                if (propertyName is null)
-                    throw new ArgumentException("Property name must not be null.");
-                propertyInfo = sourceType.GetProperty(propertyName);
-                propertyValue = propertyInfo?.GetValue(source, null);
-                xmlProperty = Add(propertyName, propertyValue);
-                xmlSource.AppendChild(xmlProperty);
-                } catch { }
+                    if (propertyName is null)
+                        throw new ArgumentException("Property name must not be null.");
+                    propertyInfo = sourceType.GetProperty(propertyName);
+                    propertyValue = propertyInfo?.GetValue(source, null);
+                    xmlProperty = Add(propertyName, propertyValue);
+                    xmlSource.AppendChild(xmlProperty);
+                }
+                catch { }
             }
 
             return xmlSource;
         }
-        public void Set(string sourceXPath, object source, params string[] propertyNames)
+        public void Initialize(object source, string sourceXPath, params string[] propertyNames)
         {
-            if (sourceXPath is null)
-                throw new ArgumentNullException(nameof(sourceXPath));
             if (source is null)
                 throw new ArgumentNullException(nameof(source));
+            if (sourceXPath is null)
+                throw new ArgumentNullException(nameof(sourceXPath));
             if (propertyNames is null)
                 throw new ArgumentNullException(nameof(propertyNames));
 

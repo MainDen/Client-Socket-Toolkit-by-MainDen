@@ -1,9 +1,10 @@
-﻿using System;
+﻿using MainDen.Modules.IO;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
-namespace MainDen.ClientSocketToolkit
+namespace MainDen.ClientSocketToolkit.Modules
 {
     public class Client : IDisposable
     {
@@ -136,20 +137,6 @@ namespace MainDen.ClientSocketToolkit
                     socket = value;
             }
         }
-        private Logger logger;
-        public Logger Logger
-        {
-            get
-            {
-                lock (lSettings)
-                    return logger;
-            }
-            set
-            {
-                lock (lSettings)
-                    logger = value;
-            }
-        }
         private Thread Connecting
         {
             get => new Thread(arg => {
@@ -176,16 +163,16 @@ namespace MainDen.ClientSocketToolkit
                     {
                         throw new FormatException("Invalid port format.", e);
                     }
-                    Logger?.Write("Connecting to server...");
+                    Log.Default.Write("Connecting to server...");
                     socket.Connect(server, port);
-                    Logger?.Write($"Connected to server ({socket.RemoteEndPoint as IPEndPoint}).");
+                    Log.Default.Write($"Connected to server ({socket.RemoteEndPoint as IPEndPoint}).");
                     Status = ClientStatus.Connected;
                     Receiving.Start();
                 }
                 catch (ObjectDisposedException) { }
                 catch (Exception e)
                 {
-                    Logger?.Write(e?.Message, Logger.Sender.Error);
+                    Log.Default.Write(e?.Message, Log.Sender.Error);
                     socket?.Close();
                     Socket = null;
                     Status = ClientStatus.Available;
@@ -200,19 +187,19 @@ namespace MainDen.ClientSocketToolkit
                 try
                 {
                     socket = Socket;
-                    Logger?.Write($"Disconnecting from server...");
+                    Log.Default.Write($"Disconnecting from server...");
                     if (socket.Connected)
                         socket.Shutdown(SocketShutdown.Both);
                 }
                 catch (Exception e)
                 {
-                    Logger?.Write(e?.Message, Logger.Sender.Error);
+                    Log.Default.Write(e?.Message, Log.Sender.Error);
                 }
                 finally
                 {
                     socket?.Close();
                     Socket = null;
-                    Logger?.Write($"Disconnected from server.");
+                    Log.Default.Write($"Disconnected from server.");
                     Status = ClientStatus.Available;
                 }
             });
@@ -220,27 +207,26 @@ namespace MainDen.ClientSocketToolkit
         private Thread Sending
         {
             get => new Thread(arg => {
-                Socket socket = null;
                 try
                 {
-                    socket = Socket;
+                    Socket socket = Socket;
                     byte[] data = arg as byte[];
                     int len = data.Length;
-                    Logger?.Write($"Sending {len} bytes to server...");
+                    Log.Default.Write($"Sending {len} bytes to server...");
                     int sent = socket.Send(data);
-                    Logger?.Write($"Sent {sent} bytes to server.");
+                    Log.Default.Write($"Sent {sent} bytes to server.");
                     if (!socket.Connected)
                     {
                         socket.Close();
                         Socket = null;
-                        Logger?.Write($"Server closed the connection.");
+                        Log.Default.Write($"Server closed the connection.");
                         Status = ClientStatus.Available;
                     }
                 }
                 catch (ObjectDisposedException) { }
                 catch (Exception e)
                 {
-                    Logger?.Write(e?.Message, Logger.Sender.Error);
+                    Log.Default.Write(e?.Message, Log.Sender.Error);
                 }
             });
         }
@@ -248,53 +234,50 @@ namespace MainDen.ClientSocketToolkit
         {
             get => new Thread(() =>
             {
-                NetworkStream clientStream = null;
                 try
                 {
                     Socket client = Socket;
-                    int dataSize = 0;
-                    byte[] data = new byte[0];
-                    clientStream = new NetworkStream(client);
-                    DateTime lastReceive = DateTime.Now;
-                    while (client.Connected)
+                    using (NetworkStream clientStream = new NetworkStream(client))
                     {
-                        if (clientStream.DataAvailable)
+                        int dataSize = 0;
+                        byte[] data = new byte[0];
+                        DateTime lastReceive = DateTime.Now;
+                        while (client.Connected)
                         {
-                            int bufferSize = BufferSize;
-                            byte[] buffer = new byte[bufferSize];
-                            int dataReceivedSize = clientStream.Read(buffer, 0, bufferSize);
-                            lastReceive = DateTime.Now;
-                            if (dataReceivedSize > 0)
+                            if (clientStream.DataAvailable)
                             {
-                                int tempSize = dataSize;
-                                byte[] temp = data;
-                                dataSize = tempSize + dataReceivedSize;
-                                data = new byte[dataSize];
-                                Buffer.BlockCopy(temp, 0, data, 0, tempSize);
-                                Buffer.BlockCopy(buffer, 0, data, tempSize, dataReceivedSize);
+                                int bufferSize = BufferSize;
+                                byte[] buffer = new byte[bufferSize];
+                                int dataReceivedSize = clientStream.Read(buffer, 0, bufferSize);
+                                lastReceive = DateTime.Now;
+                                if (dataReceivedSize > 0)
+                                {
+                                    int tempSize = dataSize;
+                                    byte[] temp = data;
+                                    dataSize = tempSize + dataReceivedSize;
+                                    data = new byte[dataSize];
+                                    Buffer.BlockCopy(temp, 0, data, 0, tempSize);
+                                    Buffer.BlockCopy(buffer, 0, data, tempSize, dataReceivedSize);
+                                }
                             }
-                        }
-                        else
-                        {
-                            if (dataSize > 0 && (DateTime.Now - lastReceive).TotalMilliseconds >= ReceiveTimeout)
+                            else
                             {
-                                Logger?.Write($"Received {dataSize} bytes from server.");
-                                DataReceived?.Invoke(data);
-                                dataSize = 0;
-                                data = new byte[0];
+                                if (dataSize > 0 && (DateTime.Now - lastReceive).TotalMilliseconds >= ReceiveTimeout)
+                                {
+                                    Log.Default.Write($"Received {dataSize} bytes from server.");
+                                    DataReceived?.Invoke(data);
+                                    dataSize = 0;
+                                    data = new byte[0];
+                                }
                             }
-                            Thread.Sleep(ReceiveTimeout + 1);
+                            Thread.Sleep(1);
                         }
                     }
                 }
                 catch (ObjectDisposedException) { }
                 catch (Exception e)
                 {
-                    Logger?.Write(e.Message, Logger.Sender.Error);
-                }
-                finally
-                {
-                    clientStream?.Close();
+                    Log.Default.Write(e.Message, Log.Sender.Error);
                 }
             });
         }

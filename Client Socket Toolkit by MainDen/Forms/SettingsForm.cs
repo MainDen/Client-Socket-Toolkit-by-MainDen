@@ -1,42 +1,25 @@
-﻿using System;
+﻿using MainDen.ClientSocketToolkit.Modules;
+using MainDen.Modules.IO;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace MainDen.ClientSocketToolkit
 {
     public partial class SettingsForm : Form
     {
-        public SettingsForm(Client client, Echo echo, Logger logger)
+        public SettingsForm(Client client)
         {
             InitializeComponent();
+            if (client is null)
+                throw new ArgumentNullException(nameof(client));
             Client = client;
-            Echo = echo;
-            Logger = logger;
         }
 
         private void SettingsForm_Load(object sender, EventArgs e)
         {
-            if (Client is null)
-            {
-                MessageBox.Show("Client must not be null.");
-                Close();
-                return;
-            }
-            if (Echo is null)
-            {
-                MessageBox.Show("Echo must not be null.");
-                Close();
-                return;
-            }
-            if (Logger is null)
-            {
-                MessageBox.Show("Logger must not be null.");
-                Close();
-                return;
-            }
             Reset();
         }
 
@@ -46,9 +29,9 @@ namespace MainDen.ClientSocketToolkit
             DateTime now = DateTime.Now;
             try
             {
-                string path = Logger.GetFilePath(tbLFilePathF.Text, now);
+                string path = Log.GetFilePath(tbLFilePathF.Text, now);
                 File.Create(path).Dispose();
-                Logger.FilePathFormat = tbLFilePathF.Text;
+                Log.FilePathFormat = tbLFilePathF.Text;
                 tbLFilePathF.BackColor = Color.Lime;
             }
             catch
@@ -58,8 +41,8 @@ namespace MainDen.ClientSocketToolkit
             }
             try
             {
-                Logger.GetMessage(tbLMessageF.Text, Logger.Sender.Log, now, "Test message.");
-                Logger.MessageFormat = tbLMessageF.Text;
+                Log.GetMessage(TextConverter.ToMultiLine(tbLMessageF.Text), Log.Sender.Log, now, "Test message.");
+                Log.MessageFormat = TextConverter.ToMultiLine(tbLMessageF.Text);
                 tbLMessageF.BackColor = Color.Lime;
             }
             catch
@@ -69,8 +52,8 @@ namespace MainDen.ClientSocketToolkit
             }
             try
             {
-                Logger.GetMessage(tbLMessageDetailsF.Text, Logger.Sender.Log, now, "Test message.", "Test details.");
-                Logger.MessageDetailsFormat = tbLMessageDetailsF.Text;
+                Log.GetMessage(TextConverter.ToMultiLine(tbLMessageDetailsF.Text), Log.Sender.Log, now, "Test message.", "Test details.");
+                Log.MessageDetailsFormat = TextConverter.ToMultiLine(tbLMessageDetailsF.Text);
                 tbLMessageDetailsF.BackColor = Color.Lime;
             }
             catch
@@ -80,7 +63,7 @@ namespace MainDen.ClientSocketToolkit
             }
             try
             {
-                Logger.WriteToFile = cbLWTFile.Checked;
+                Log.WriteToFile = cbLWTFile.Checked;
                 cbLWTFile.BackColor = Color.Lime;
             }
             catch
@@ -90,7 +73,7 @@ namespace MainDen.ClientSocketToolkit
             }
             try
             {
-                Logger.WriteToCustom = cbLWTScreen.Checked;
+                Log.WriteToCustom = cbLWTScreen.Checked;
                 cbLWTScreen.BackColor = Color.Lime;
             }
             catch
@@ -100,8 +83,8 @@ namespace MainDen.ClientSocketToolkit
             }
             try
             {
-                Echo.GetMessage(tbEMessageF.Text, "Test message.");
-                Echo.MessageFormat = tbEMessageF.Text;
+                Echo.GetMessage(TextConverter.ToMultiLine(tbEMessageF.Text), "Test message.");
+                Echo.MessageFormat = TextConverter.ToMultiLine(tbEMessageF.Text);
                 tbEMessageF.BackColor = Color.Lime;
             }
             catch
@@ -134,15 +117,15 @@ namespace MainDen.ClientSocketToolkit
 
         private void Reset()
         {
-            tbLFilePathF.Text = Logger.FilePathFormat;
+            tbLFilePathF.Text = Log.FilePathFormat;
             tbLFilePathF.BackColor = Color.Lime;
-            tbLMessageF.Text = Logger.MessageFormat;
+            tbLMessageF.Text = Log.MessageFormat;
             tbLMessageF.BackColor = Color.Lime;
-            tbLMessageDetailsF.Text = Logger.MessageDetailsFormat;
+            tbLMessageDetailsF.Text = Log.MessageDetailsFormat;
             tbLMessageDetailsF.BackColor = Color.Lime;
-            cbLWTFile.Checked = Logger.WriteToFile;
+            cbLWTFile.Checked = Log.WriteToFile;
             cbLWTFile.BackColor = Color.Lime;
-            cbLWTScreen.Checked = Logger.WriteToCustom;
+            cbLWTScreen.Checked = Log.WriteToCustom;
             cbLWTScreen.BackColor = Color.Lime;
             tbEMessageF.Text = Echo.MessageFormat;
             tbEMessageF.BackColor = Color.Lime;
@@ -153,8 +136,8 @@ namespace MainDen.ClientSocketToolkit
         }
 
         private Client Client;
-        private Echo Echo;
-        private Logger Logger;
+        private Echo Echo = Echo.Default;
+        private Log Log = Log.Default;
         private Random Random = new Random();
         private readonly List<string> SampleMessages = new List<string>()
         {
@@ -174,12 +157,12 @@ namespace MainDen.ClientSocketToolkit
 
         private void LoggerWriteSampleMessage(string messageFormat)
         {
-            rtbSampleOutput.Text += Logger.GetMessage(messageFormat, (Logger.Sender)Random.Next(0, 3), DateTime.Now, SampleMessages[Random.Next(0, SampleMessages.Count)]);
+            rtbSampleOutput.Text += Log.GetMessage(TextConverter.ToMultiLine(messageFormat), (Log.Sender)Random.Next(0, 3), DateTime.Now, SampleMessages[Random.Next(0, SampleMessages.Count)]);
         }
 
         private void LoggerWriteMessageDetailsSample(string messageDetailsFormat)
         {
-            rtbSampleOutput.Text += Logger.GetMessage(messageDetailsFormat, (Logger.Sender)Random.Next(0, 3), DateTime.Now, SampleMessages[Random.Next(0, SampleMessages.Count)], "Any details.");
+            rtbSampleOutput.Text += Log.GetMessage(TextConverter.ToMultiLine(messageDetailsFormat), (Log.Sender)Random.Next(0, 3), DateTime.Now, SampleMessages[Random.Next(0, SampleMessages.Count)], "Any details.");
         }
 
         private void EchoWriteSampleMessage(string messageFormat)
@@ -214,13 +197,13 @@ namespace MainDen.ClientSocketToolkit
             if (control is null)
                 return;
             DateTime now = DateTime.Now;
-            if (control.Text == Logger.FilePathFormat)
+            if (control.Text == Log.FilePathFormat)
                 control.BackColor = Color.Lime;
             else
                 control.BackColor = DefaultBackColor;
             try
             {
-                tbLFilePathFR.Text = Logger.GetFilePath(control.Text, now);
+                tbLFilePathFR.Text = Log.GetFilePath(control.Text, now);
             }
             catch
             {
@@ -234,8 +217,7 @@ namespace MainDen.ClientSocketToolkit
             Control control = sender as Control;
             if (control is null)
                 return;
-            DateTime now = DateTime.Now;
-            if (control.Text == Logger.MessageFormat)
+            if (control.Text == Log.MessageFormat)
                 control.BackColor = Color.Lime;
             else
                 control.BackColor = DefaultBackColor;
@@ -254,8 +236,7 @@ namespace MainDen.ClientSocketToolkit
             Control control = sender as Control;
             if (control is null)
                 return;
-            DateTime now = DateTime.Now;
-            if (control.Text == Logger.MessageDetailsFormat)
+            if (control.Text == Log.MessageDetailsFormat)
                 control.BackColor = Color.Lime;
             else
                 control.BackColor = DefaultBackColor;
@@ -274,7 +255,7 @@ namespace MainDen.ClientSocketToolkit
             CheckBox control = sender as CheckBox;
             if (control is null)
                 return;
-            if (control.Checked == Logger.WriteToFile)
+            if (control.Checked == Log.WriteToFile)
                 control.BackColor = Color.Lime;
             else
                 control.BackColor = DefaultBackColor;
@@ -285,7 +266,7 @@ namespace MainDen.ClientSocketToolkit
             CheckBox control = sender as CheckBox;
             if (control is null)
                 return;
-            if (control.Checked == Logger.WriteToCustom)
+            if (control.Checked == Log.WriteToCustom)
                 control.BackColor = Color.Lime;
             else
                 control.BackColor = DefaultBackColor;

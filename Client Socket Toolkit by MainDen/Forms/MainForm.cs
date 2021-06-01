@@ -1,4 +1,6 @@
-﻿using Extension.Text;
+﻿using MainDen.ClientSocketToolkit.Modules;
+using MainDen.Modules.IO;
+using MainDen.Modules.Text;
 using System;
 using System.Net.Sockets;
 using System.Text;
@@ -12,72 +14,72 @@ namespace MainDen.ClientSocketToolkit
         public MainForm()
         {
             InitializeComponent();
-            TextWrite = new Action<string>(message =>
-            {
-                rtbLog.Text += message;
-            });
-            TextWriteAsync += new Action<string>(message => rtbLog.Invoke(TextWrite, message));
-            Echo.CustomWrite += TextWriteAsync;
-            Logger.CustomWrite += TextWriteAsync;
-            Client.Logger = Logger;
+            Echo.Default.CustomWrite += CustomWriteAsync;
+            Log.Default.CustomWrite += CustomWriteAsync;
             Client.StatusChanged += OnStatusChangedAsync;
             Client.DataReceived += OnDataReceivedAsync;
         }
 
         const string defaultSettingsFileName = @".\settings.xml";
 
-        Action<string> TextWrite;
-
-        Action<string> TextWriteAsync;
-
         Client Client = new Client();
-
-        Echo Echo = new Echo();
-
-        Logger Logger = new Logger();
 
         Encoding IncomingEncoding = Encoding.Default;
 
         Encoding OutcomingEncoding = Encoding.Default;
 
-        private Action<Client.ClientStatus> onStatusChangedAction;
+        private readonly object lSettings = new object();
 
-        private Action<Client.ClientStatus> OnStatusChangedAction
+        private Delegate onStatusChangedDelegate;
+
+        private Delegate OnStatusChangedDelegate
         {
             get
             {
-                return onStatusChangedAction ??
-                    (onStatusChangedAction = new Action<Client.ClientStatus>(OnStatusChanged));
+                lock (lSettings)
+                    return onStatusChangedDelegate ?? (onStatusChangedDelegate = new Action<Client.ClientStatus>(OnStatusChanged));
             }
         }
 
-        private Action<byte[]> onDataReceivedAction;
+        private Delegate onDataReceivedDelegate;
 
-        private Action<byte[]> OnDataReceivedAction
+        private Delegate OnDataReceivedDelegate
         {
             get
             {
-                return onDataReceivedAction ??
-                    (onDataReceivedAction = new Action<byte[]>(OnDataReceived));
+                lock (lSettings)
+                    return onDataReceivedDelegate ?? (onDataReceivedDelegate = new Action<byte[]>(OnDataReceived));
             }
+        }
+
+        private Delegate customWriteDelegate;
+
+        private Delegate CustomWriteDelegate
+        {
+            get
+            {
+                lock (lSettings)
+                    return customWriteDelegate ?? (customWriteDelegate = new Action<string>(CustomWrite));
+            }
+        }
+
+        private void CustomWrite(string message)
+        {
+            rtbLog.Text += message;
+        }
+
+        private void CustomWriteAsync(string message)
+        {
+            rtbLog.Invoke(CustomWriteDelegate, message);
         }
 
         private void OnStatusChanged(Client.ClientStatus status)
         {
-            if (status == Client.ClientStatus.Available)
-            {
-                bProtocolType.Enabled = true;
-                bAddressFamily.Enabled = true;
-                tbServer.Enabled = true;
-                tbPort.Enabled = true;
-            }
-            else
-            {
-                bProtocolType.Enabled = false;
-                bAddressFamily.Enabled = false;
-                tbServer.Enabled = false;
-                tbPort.Enabled = false;
-            }
+            bool available = status == Client.ClientStatus.Available;
+            bProtocolType.Enabled = available;
+            bAddressFamily.Enabled = available;
+            tbServer.Enabled = available;
+            tbPort.Enabled = available;
             switch (status)
             {
                 case Client.ClientStatus.Available:
@@ -105,16 +107,16 @@ namespace MainDen.ClientSocketToolkit
 
         private void OnStatusChangedAsync(Client.ClientStatus status)
         {
-            Invoke(OnStatusChangedAction, status);
+            Invoke(OnStatusChangedDelegate, status);
         }
 
         private void OnDataReceived(byte[] data)
         {
             Encoding InEnc = IncomingEncoding;
             string text = InEnc.GetString(data);
-            if (InEnc == Hexadecimal.HASCII)
+            if (InEnc == HexadecimalEncoding.HASCII)
                 new ContentPresenter(text, "HASCII", System.Drawing.FontFamily.GenericMonospace).Show();
-            else if (InEnc == Hexadecimal.Hex)
+            else if (InEnc == HexadecimalEncoding.Hex)
                 new ContentPresenter(text, "HEX", System.Drawing.FontFamily.GenericMonospace).Show();
             else if (text.StartsWith("HTTP/"))
                 new HttpPresenter(text).Show();
@@ -124,7 +126,7 @@ namespace MainDen.ClientSocketToolkit
 
         private void OnDataReceivedAsync(byte[] data)
         {
-            Invoke(OnDataReceivedAction, data);
+            Invoke(OnDataReceivedDelegate, data);
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -134,12 +136,12 @@ namespace MainDen.ClientSocketToolkit
                 XmlAsSettings(defaultSettingsFileName);
                 SettingsAsXml().Save(defaultSettingsFileName);
             } catch { }
-            Logger?.Write("Application was loaded.");
+            Log.Default.Write("Application was loaded.");
         }
 
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
-            Logger?.Write("Application was closed.");
+            Log.Default.Write("Application was closed.");
             Client.Dispose();
         }
 
@@ -203,11 +205,11 @@ namespace MainDen.ClientSocketToolkit
                     bIncomingEncoding.Text = "Unicode";
                     break;
                 case "Unicode":
-                    IncomingEncoding = Hexadecimal.Hex;
+                    IncomingEncoding = HexadecimalEncoding.Hex;
                     bIncomingEncoding.Text = "HEX";
                     break;
                 case "HEX":
-                    IncomingEncoding = Hexadecimal.HASCII;
+                    IncomingEncoding = HexadecimalEncoding.HASCII;
                     bIncomingEncoding.Text = "HASCII";
                     break;
                 default:
@@ -234,11 +236,11 @@ namespace MainDen.ClientSocketToolkit
                     bOutcomingEncoding.Text = "Unicode";
                     break;
                 case "Unicode":
-                    OutcomingEncoding = Hexadecimal.Hex;
+                    OutcomingEncoding = HexadecimalEncoding.Hex;
                     bOutcomingEncoding.Text = "HEX";
                     break;
                 case "HEX":
-                    OutcomingEncoding = Hexadecimal.HASCII;
+                    OutcomingEncoding = HexadecimalEncoding.HASCII;
                     bOutcomingEncoding.Text = "HASCII";
                     break;
                 case "HASCII":
@@ -278,7 +280,7 @@ namespace MainDen.ClientSocketToolkit
                     Client.SendAsync(OutcomingEncoding.GetBytes(tbMessage.Text));
                     break;
                 case "Echo":
-                    Echo.Write(IncomingEncoding.GetString(OutcomingEncoding.GetBytes(tbMessage.Text)));
+                    Echo.Default.Write(IncomingEncoding.GetString(OutcomingEncoding.GetBytes(tbMessage.Text)));
                     break;
                 case "Execute":
                     ExecuteCommand(tbMessage.Text);
@@ -288,7 +290,7 @@ namespace MainDen.ClientSocketToolkit
 
         private void ExecuteCommand(string command)
         {
-            Logger?.Write("Command execution is not yet supported.");
+            Echo.Default.Write("Command execution is not yet supported.");
         }
 
         private void NewToolStripMenuItem_Click(object sender, EventArgs e)
@@ -346,7 +348,7 @@ namespace MainDen.ClientSocketToolkit
 
         private void EditSettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SettingsForm settings = new SettingsForm(Client, Echo, Logger);
+            SettingsForm settings = new SettingsForm(Client);
             settings.ShowDialog();
             try
             {
@@ -378,20 +380,20 @@ namespace MainDen.ClientSocketToolkit
         {
             XmlPorter porter = new XmlPorter();
             porter.Document.Load(filename);
-            porter.Set("/Settings/Client", Client,
+            porter.Initialize(Client, "/Settings/Client",
                 nameof(Client.BufferSize),
                 nameof(Client.ReceiveTimeout));
-            porter.Set("/Settings/Echo", Echo,
-                nameof(Echo.WriteToCustom),
-                nameof(Echo.WriteToConsole),
-                nameof(Echo.MessageFormat));
-            porter.Set("/Settings/Logger", Logger,
-                nameof(Logger.WriteToCustom),
-                nameof(Logger.WriteToConsole),
-                nameof(Logger.WriteToFile),
-                nameof(Logger.FilePathFormat),
-                nameof(Logger.MessageFormat),
-                nameof(Logger.MessageDetailsFormat));
+            porter.Initialize(Echo.Default, "/Settings/Echo",
+                nameof(Echo.Default.WriteToCustom),
+                nameof(Echo.Default.WriteToConsole),
+                nameof(Echo.Default.MessageFormat));
+            porter.Initialize(Log.Default, "/Settings/Log",
+                nameof(Log.Default.WriteToCustom),
+                nameof(Log.Default.WriteToConsole),
+                nameof(Log.Default.WriteToFile),
+                nameof(Log.Default.FilePathFormat),
+                nameof(Log.Default.MessageFormat),
+                nameof(Log.Default.MessageDetailsFormat));
         }
 
         private XmlDocument SettingsAsXml()
@@ -403,18 +405,18 @@ namespace MainDen.ClientSocketToolkit
                 nameof(Client.BufferSize),
                 nameof(Client.ReceiveTimeout)));
 
-            root.AppendChild(porter.Add("Echo", Echo,
-                nameof(Echo.WriteToCustom),
-                nameof(Echo.WriteToConsole),
-                nameof(Echo.MessageFormat)));
+            root.AppendChild(porter.Add("Echo", Echo.Default,
+                nameof(Echo.Default.WriteToCustom),
+                nameof(Echo.Default.WriteToConsole),
+                nameof(Echo.Default.MessageFormat)));
 
-            root.AppendChild(porter.Add("Logger", Logger,
-                nameof(Logger.WriteToCustom),
-                nameof(Logger.WriteToConsole),
-                nameof(Logger.WriteToFile),
-                nameof(Logger.FilePathFormat),
-                nameof(Logger.MessageFormat),
-                nameof(Logger.MessageDetailsFormat)));
+            root.AppendChild(porter.Add("Log", Log.Default,
+                nameof(Log.Default.WriteToCustom),
+                nameof(Log.Default.WriteToConsole),
+                nameof(Log.Default.WriteToFile),
+                nameof(Log.Default.FilePathFormat),
+                nameof(Log.Default.MessageFormat),
+                nameof(Log.Default.MessageDetailsFormat)));
 
             return porter.Document;
         }

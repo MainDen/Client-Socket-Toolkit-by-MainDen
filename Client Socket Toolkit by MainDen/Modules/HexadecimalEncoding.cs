@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Text;
 
-namespace Extension.Text
+namespace MainDen.Modules.Text
 {
-    public static class Hexadecimal
+    public abstract class HexadecimalEncoding : Encoding
     {
-        private class HexEncoding : Encoding
+        private static readonly object lSettings = new object();
+
+        private class HexEncoding : HexadecimalEncoding
         {
             public override string EncodingName => "Hex";
 
@@ -182,7 +184,7 @@ namespace Extension.Text
             }
         }
 
-        private class HASCIIEncoding : HexEncoding
+        private class HASCIIEncoding : HexadecimalEncoding
         {
             private enum Helper : int
             {
@@ -200,7 +202,7 @@ namespace Extension.Text
 
             private const char ESCCharEnd = '}';
 
-            public override string EncodingName => "Hex{US-ASCII}";
+            public override string EncodingName => "Hex" + ESCCharBegin + "US-ASCII" + ESCCharEnd;
 
             public override int GetByteCount(char[] chars, int index, int count)
             {
@@ -552,29 +554,31 @@ namespace Extension.Text
                 return byteCount / 2 * 7 + byteCount % 2 * 4 - 1;
             }
 
-            public static bool IsEscaping(byte b)
+            private static bool IsEscaping(byte b)
             {
                 return 0x20 <= b && b < 0x7F;
             }
         }
 
-        private static Encoding hex;
+        private static HexadecimalEncoding hex;
 
-        private static Encoding hASCII;
+        private static HexadecimalEncoding hASCII;
 
-        public static Encoding Hex
+        public static HexadecimalEncoding Hex
         {
             get
             {
-                return hex ?? (hex = new HexEncoding());
+                lock (lSettings)
+                    return hex ?? (hex = new HexEncoding());
             }
         }
 
-        public static Encoding HASCII
+        public static HexadecimalEncoding HASCII
         {
             get
             {
-                return hASCII ?? (hASCII = new HASCIIEncoding());
+                lock (lSettings)
+                    return hASCII ?? (hASCII = new HASCIIEncoding());
             }
         }
 

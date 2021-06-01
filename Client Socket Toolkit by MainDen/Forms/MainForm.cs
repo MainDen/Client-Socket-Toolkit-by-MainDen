@@ -14,8 +14,8 @@ namespace MainDen.ClientSocketToolkit
         public MainForm()
         {
             InitializeComponent();
-            Echo.Default.CustomWrite += CustomWriteAsync;
-            Log.Default.CustomWrite += CustomWriteAsync;
+            Echo.Default.Custom += CustomWriteAsync;
+            Log.Default.Custom += CustomWriteAsync;
             Client.StatusChanged += OnStatusChangedAsync;
             Client.DataReceived += OnDataReceivedAsync;
         }
@@ -392,8 +392,7 @@ namespace MainDen.ClientSocketToolkit
                 nameof(Log.Default.WriteToConsole),
                 nameof(Log.Default.WriteToFile),
                 nameof(Log.Default.FilePathFormat),
-                nameof(Log.Default.MessageFormat),
-                nameof(Log.Default.MessageDetailsFormat));
+                nameof(Log.Default.MessageFormat));
         }
 
         private XmlDocument SettingsAsXml()
@@ -415,8 +414,7 @@ namespace MainDen.ClientSocketToolkit
                 nameof(Log.Default.WriteToConsole),
                 nameof(Log.Default.WriteToFile),
                 nameof(Log.Default.FilePathFormat),
-                nameof(Log.Default.MessageFormat),
-                nameof(Log.Default.MessageDetailsFormat)));
+                nameof(Log.Default.MessageFormat)));
 
             return porter.Document;
         }

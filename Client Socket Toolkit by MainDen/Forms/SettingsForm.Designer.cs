@@ -44,8 +44,6 @@ namespace MainDen.ClientSocketToolkit
             this.bReset = new System.Windows.Forms.Button();
             this.lCBS = new System.Windows.Forms.Label();
             this.lClient = new System.Windows.Forms.Label();
-            this.tbLMessageDetailsF = new System.Windows.Forms.TextBox();
-            this.lLMDF = new System.Windows.Forms.Label();
             this.tbLMessageF = new System.Windows.Forms.TextBox();
             this.lLMF = new System.Windows.Forms.Label();
             this.tbLFilePathFR = new System.Windows.Forms.TextBox();
@@ -66,31 +64,29 @@ namespace MainDen.ClientSocketToolkit
             this.tlpSettings.ColumnCount = 2;
             this.tlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 37.5F));
             this.tlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 62.5F));
-            this.tlpSettings.Controls.Add(this.nudCReceiveTimeout, 0, 16);
-            this.tlpSettings.Controls.Add(this.lCRT, 0, 15);
+            this.tlpSettings.Controls.Add(this.nudCReceiveTimeout, 0, 14);
+            this.tlpSettings.Controls.Add(this.lCRT, 0, 13);
             this.tlpSettings.Controls.Add(this.lLFilePathR, 1, 1);
             this.tlpSettings.Controls.Add(this.bCancel, 1, 19);
-            this.tlpSettings.Controls.Add(this.cbLWTScreen, 0, 8);
+            this.tlpSettings.Controls.Add(this.cbLWTScreen, 0, 6);
             this.tlpSettings.Controls.Add(this.lSampleOutput, 1, 3);
-            this.tlpSettings.Controls.Add(this.tbEMessageF, 0, 11);
-            this.tlpSettings.Controls.Add(this.lEMessageF, 0, 10);
-            this.tlpSettings.Controls.Add(this.lEcho, 0, 9);
+            this.tlpSettings.Controls.Add(this.tbEMessageF, 0, 9);
+            this.tlpSettings.Controls.Add(this.lEMessageF, 0, 8);
+            this.tlpSettings.Controls.Add(this.lEcho, 0, 7);
             this.tlpSettings.Controls.Add(this.bOK, 1, 18);
             this.tlpSettings.Controls.Add(this.bReset, 0, 19);
-            this.tlpSettings.Controls.Add(this.lCBS, 0, 13);
-            this.tlpSettings.Controls.Add(this.lClient, 0, 12);
-            this.tlpSettings.Controls.Add(this.tbLMessageDetailsF, 0, 6);
-            this.tlpSettings.Controls.Add(this.lLMDF, 0, 5);
+            this.tlpSettings.Controls.Add(this.lCBS, 0, 11);
+            this.tlpSettings.Controls.Add(this.lClient, 0, 10);
             this.tlpSettings.Controls.Add(this.tbLMessageF, 0, 4);
             this.tlpSettings.Controls.Add(this.lLMF, 0, 3);
             this.tlpSettings.Controls.Add(this.tbLFilePathFR, 1, 2);
             this.tlpSettings.Controls.Add(this.tbLFilePathF, 0, 2);
             this.tlpSettings.Controls.Add(this.lLogger, 0, 0);
             this.tlpSettings.Controls.Add(this.lLFilePath, 0, 1);
-            this.tlpSettings.Controls.Add(this.nudCBufferSize, 0, 14);
+            this.tlpSettings.Controls.Add(this.nudCBufferSize, 0, 12);
             this.tlpSettings.Controls.Add(this.bApply, 0, 18);
             this.tlpSettings.Controls.Add(this.rtbSampleOutput, 1, 4);
-            this.tlpSettings.Controls.Add(this.cbLWTFile, 0, 7);
+            this.tlpSettings.Controls.Add(this.cbLWTFile, 0, 5);
             this.tlpSettings.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlpSettings.Location = new System.Drawing.Point(0, 0);
             this.tlpSettings.Name = "tlpSettings";
@@ -122,7 +118,7 @@ namespace MainDen.ClientSocketToolkit
             // nudCReceiveTimeout
             // 
             this.nudCReceiveTimeout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.nudCReceiveTimeout.Location = new System.Drawing.Point(3, 350);
+            this.nudCReceiveTimeout.Location = new System.Drawing.Point(3, 312);
             this.nudCReceiveTimeout.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -143,7 +139,7 @@ namespace MainDen.ClientSocketToolkit
             // 
             this.lCRT.AutoSize = true;
             this.lCRT.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lCRT.Location = new System.Drawing.Point(3, 331);
+            this.lCRT.Location = new System.Drawing.Point(3, 293);
             this.lCRT.Margin = new System.Windows.Forms.Padding(3);
             this.lCRT.Name = "lCRT";
             this.lCRT.Padding = new System.Windows.Forms.Padding(2, 0, 2, 0);
@@ -179,7 +175,7 @@ namespace MainDen.ClientSocketToolkit
             // 
             this.cbLWTScreen.AutoSize = true;
             this.cbLWTScreen.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.cbLWTScreen.Location = new System.Drawing.Point(3, 180);
+            this.cbLWTScreen.Location = new System.Drawing.Point(3, 135);
             this.cbLWTScreen.Name = "cbLWTScreen";
             this.cbLWTScreen.Padding = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.cbLWTScreen.Size = new System.Drawing.Size(228, 17);
@@ -203,7 +199,7 @@ namespace MainDen.ClientSocketToolkit
             // tbEMessageF
             // 
             this.tbEMessageF.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbEMessageF.Location = new System.Drawing.Point(3, 241);
+            this.tbEMessageF.Location = new System.Drawing.Point(3, 196);
             this.tbEMessageF.Name = "tbEMessageF";
             this.tbEMessageF.Size = new System.Drawing.Size(228, 20);
             this.tbEMessageF.TabIndex = 6;
@@ -213,7 +209,7 @@ namespace MainDen.ClientSocketToolkit
             // 
             this.lEMessageF.AutoSize = true;
             this.lEMessageF.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lEMessageF.Location = new System.Drawing.Point(3, 222);
+            this.lEMessageF.Location = new System.Drawing.Point(3, 177);
             this.lEMessageF.Margin = new System.Windows.Forms.Padding(3);
             this.lEMessageF.Name = "lEMessageF";
             this.lEMessageF.Padding = new System.Windows.Forms.Padding(2, 0, 2, 0);
@@ -225,7 +221,7 @@ namespace MainDen.ClientSocketToolkit
             // 
             this.lEcho.AutoSize = true;
             this.lEcho.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lEcho.Location = new System.Drawing.Point(3, 203);
+            this.lEcho.Location = new System.Drawing.Point(3, 158);
             this.lEcho.Margin = new System.Windows.Forms.Padding(3);
             this.lEcho.Name = "lEcho";
             this.lEcho.Padding = new System.Windows.Forms.Padding(2, 0, 2, 0);
@@ -261,11 +257,11 @@ namespace MainDen.ClientSocketToolkit
             // 
             this.lCBS.AutoSize = true;
             this.lCBS.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lCBS.Location = new System.Drawing.Point(3, 286);
+            this.lCBS.Location = new System.Drawing.Point(3, 241);
             this.lCBS.Margin = new System.Windows.Forms.Padding(3);
             this.lCBS.Name = "lCBS";
             this.lCBS.Padding = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.lCBS.Size = new System.Drawing.Size(228, 13);
+            this.lCBS.Size = new System.Drawing.Size(228, 20);
             this.lCBS.TabIndex = 17;
             this.lCBS.Text = "Buffer size:";
             // 
@@ -273,34 +269,13 @@ namespace MainDen.ClientSocketToolkit
             // 
             this.lClient.AutoSize = true;
             this.lClient.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lClient.Location = new System.Drawing.Point(3, 267);
+            this.lClient.Location = new System.Drawing.Point(3, 222);
             this.lClient.Margin = new System.Windows.Forms.Padding(3);
             this.lClient.Name = "lClient";
             this.lClient.Padding = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lClient.Size = new System.Drawing.Size(228, 13);
             this.lClient.TabIndex = 16;
             this.lClient.Text = "Client:";
-            // 
-            // tbLMessageDetailsF
-            // 
-            this.tbLMessageDetailsF.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbLMessageDetailsF.Location = new System.Drawing.Point(3, 131);
-            this.tbLMessageDetailsF.Name = "tbLMessageDetailsF";
-            this.tbLMessageDetailsF.Size = new System.Drawing.Size(228, 20);
-            this.tbLMessageDetailsF.TabIndex = 3;
-            this.tbLMessageDetailsF.TextChanged += new System.EventHandler(this.TBLMessageDetailsF_TextChanged);
-            // 
-            // lLMDF
-            // 
-            this.lLMDF.AutoSize = true;
-            this.lLMDF.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lLMDF.Location = new System.Drawing.Point(3, 112);
-            this.lLMDF.Margin = new System.Windows.Forms.Padding(3);
-            this.lLMDF.Name = "lLMDF";
-            this.lLMDF.Padding = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.lLMDF.Size = new System.Drawing.Size(228, 13);
-            this.lLMDF.TabIndex = 13;
-            this.lLMDF.Text = "Message details format:";
             // 
             // tbLMessageF
             // 
@@ -374,7 +349,7 @@ namespace MainDen.ClientSocketToolkit
             0,
             0,
             0});
-            this.nudCBufferSize.Location = new System.Drawing.Point(3, 305);
+            this.nudCBufferSize.Location = new System.Drawing.Point(3, 267);
             this.nudCBufferSize.Maximum = new decimal(new int[] {
             262144,
             0,
@@ -425,7 +400,7 @@ namespace MainDen.ClientSocketToolkit
             // 
             this.cbLWTFile.AutoSize = true;
             this.cbLWTFile.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.cbLWTFile.Location = new System.Drawing.Point(3, 157);
+            this.cbLWTFile.Location = new System.Drawing.Point(3, 112);
             this.cbLWTFile.Name = "cbLWTFile";
             this.cbLWTFile.Padding = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.cbLWTFile.Size = new System.Drawing.Size(228, 17);
@@ -468,8 +443,6 @@ namespace MainDen.ClientSocketToolkit
         private System.Windows.Forms.Label lLFilePath;
         private System.Windows.Forms.TextBox tbLMessageF;
         private System.Windows.Forms.Label lLMF;
-        private System.Windows.Forms.Label lLMDF;
-        private System.Windows.Forms.TextBox tbLMessageDetailsF;
         private System.Windows.Forms.Label lClient;
         private System.Windows.Forms.Label lCBS;
         private System.Windows.Forms.NumericUpDown nudCBufferSize;

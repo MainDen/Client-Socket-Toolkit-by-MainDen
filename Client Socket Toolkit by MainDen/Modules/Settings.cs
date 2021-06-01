@@ -44,8 +44,7 @@ namespace MainDen.ClientSocketToolkit.Modules
                     nameof(Log.Default.WriteToConsole),
                     nameof(Log.Default.WriteToFile),
                     nameof(Log.Default.FilePathFormat),
-                    nameof(Log.Default.MessageFormat),
-                    nameof(Log.Default.MessageDetailsFormat));
+                    nameof(Log.Default.MessageFormat));
         }
     }
 }

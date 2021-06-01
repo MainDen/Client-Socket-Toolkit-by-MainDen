@@ -30,7 +30,6 @@ namespace MainDen.ClientSocketToolkit
             try
             {
                 string path = Log.GetFilePath(tbLFilePathF.Text, now);
-                File.Create(path).Dispose();
                 Log.FilePathFormat = tbLFilePathF.Text;
                 tbLFilePathF.BackColor = Color.Lime;
             }
@@ -41,7 +40,7 @@ namespace MainDen.ClientSocketToolkit
             }
             try
             {
-                Log.GetMessage(TextConverter.ToMultiLine(tbLMessageF.Text), Log.Sender.Log, now, "Test message.");
+                Log.GetLogMessage(TextConverter.ToMultiLine(tbLMessageF.Text), Log.Sender.Log, now, "Test message.");
                 Log.MessageFormat = TextConverter.ToMultiLine(tbLMessageF.Text);
                 tbLMessageF.BackColor = Color.Lime;
             }
@@ -49,17 +48,6 @@ namespace MainDen.ClientSocketToolkit
             {
                 applied = false;
                 tbLMessageF.BackColor = Color.Red;
-            }
-            try
-            {
-                Log.GetMessage(TextConverter.ToMultiLine(tbLMessageDetailsF.Text), Log.Sender.Log, now, "Test message.", "Test details.");
-                Log.MessageDetailsFormat = TextConverter.ToMultiLine(tbLMessageDetailsF.Text);
-                tbLMessageDetailsF.BackColor = Color.Lime;
-            }
-            catch
-            {
-                applied = false;
-                tbLMessageDetailsF.BackColor = Color.Red;
             }
             try
             {
@@ -83,7 +71,7 @@ namespace MainDen.ClientSocketToolkit
             }
             try
             {
-                Echo.GetMessage(TextConverter.ToMultiLine(tbEMessageF.Text), "Test message.");
+                Echo.GetEchoMessage(TextConverter.ToMultiLine(tbEMessageF.Text), "Test message.");
                 Echo.MessageFormat = TextConverter.ToMultiLine(tbEMessageF.Text);
                 tbEMessageF.BackColor = Color.Lime;
             }
@@ -121,8 +109,6 @@ namespace MainDen.ClientSocketToolkit
             tbLFilePathF.BackColor = Color.Lime;
             tbLMessageF.Text = Log.MessageFormat;
             tbLMessageF.BackColor = Color.Lime;
-            tbLMessageDetailsF.Text = Log.MessageDetailsFormat;
-            tbLMessageDetailsF.BackColor = Color.Lime;
             cbLWTFile.Checked = Log.WriteToFile;
             cbLWTFile.BackColor = Color.Lime;
             cbLWTScreen.Checked = Log.WriteToCustom;
@@ -157,17 +143,12 @@ namespace MainDen.ClientSocketToolkit
 
         private void LoggerWriteSampleMessage(string messageFormat)
         {
-            rtbSampleOutput.Text += Log.GetMessage(TextConverter.ToMultiLine(messageFormat), (Log.Sender)Random.Next(0, 3), DateTime.Now, SampleMessages[Random.Next(0, SampleMessages.Count)]);
-        }
-
-        private void LoggerWriteMessageDetailsSample(string messageDetailsFormat)
-        {
-            rtbSampleOutput.Text += Log.GetMessage(TextConverter.ToMultiLine(messageDetailsFormat), (Log.Sender)Random.Next(0, 3), DateTime.Now, SampleMessages[Random.Next(0, SampleMessages.Count)], "Any details.");
+            rtbSampleOutput.Text += Log.GetLogMessage(TextConverter.ToMultiLine(messageFormat), (Log.Sender)Random.Next(0, 3), DateTime.Now, SampleMessages[Random.Next(0, SampleMessages.Count)]);
         }
 
         private void EchoWriteSampleMessage(string messageFormat)
         {
-            rtbSampleOutput.Text += Echo.GetMessage(messageFormat, SampleMessages[Random.Next(0, SampleMessages.Count)]);
+            rtbSampleOutput.Text += Echo.GetEchoMessage(messageFormat, SampleMessages[Random.Next(0, SampleMessages.Count)]);
         }
 
         private void BApply_Click(object sender, EventArgs e) => Apply();
@@ -224,25 +205,6 @@ namespace MainDen.ClientSocketToolkit
             try
             {
                 LoggerWriteSampleMessage(control.Text);
-            }
-            catch
-            {
-                control.BackColor = Color.Red;
-            }
-        }
-
-        private void TBLMessageDetailsF_TextChanged(object sender, EventArgs e)
-        {
-            Control control = sender as Control;
-            if (control is null)
-                return;
-            if (control.Text == Log.MessageDetailsFormat)
-                control.BackColor = Color.Lime;
-            else
-                control.BackColor = DefaultBackColor;
-            try
-            {
-                LoggerWriteMessageDetailsSample(control.Text);
             }
             catch
             {

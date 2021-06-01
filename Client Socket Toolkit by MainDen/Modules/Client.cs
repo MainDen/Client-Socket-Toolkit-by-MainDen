@@ -163,7 +163,7 @@ namespace MainDen.ClientSocketToolkit.Modules
                     {
                         throw new FormatException("Invalid port format.", e);
                     }
-                    Log.Default.Write("Connecting to server...");
+                    Log.Default.Write($"Connecting to server ({states[0]}:{port})...");
                     socket.Connect(server, port);
                     Log.Default.Write($"Connected to server ({socket.RemoteEndPoint as IPEndPoint}).");
                     Status = ClientStatus.Connected;
